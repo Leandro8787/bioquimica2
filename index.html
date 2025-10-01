@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análisis de Bioquímica en Chile</title>
+    <title>Análisis Completo de Bioquímica en Chile</title>
     <!-- Tailwind CSS para un diseño moderno y responsivo -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js para los gráficos dinámicos -->
@@ -17,7 +17,25 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
         }
+        /* --- Estilos Comunes --- */
+        .main-tab {
+            transition: all 0.3s ease;
+        }
+        .main-tab.active {
+            border-bottom-color: #38bdf8; /* sky-400 */
+            color: #e5e7eb; /* gray-200 */
+        }
+        .tab-content {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Estilos Dashboard Carreras --- */
         .metric-card {
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
@@ -34,638 +52,614 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
             background-color: rgba(31, 41, 55, 0.8);
-            color: #9ca3af;
-            font-size: 1.125rem;
-            border-radius: 0.75rem;
-            z-index: 10;
+            color: #9ca3af; font-size: 1.125rem;
+            border-radius: 0.75rem; z-index: 10;
         }
-        #indicators-table tbody tr {
-            transition: background-color 0.2s ease-in-out;
-        }
-        .highlight-row {
-            background-color: #374151; /* gray-700 */
-        }
-        .highlight-good {
-            color: #4ade80; /* green-400 */
-            font-weight: 600;
-        }
-        .highlight-bad {
-            color: #f87171; /* red-400 */
-            font-weight: 600;
-        }
-        /* Estilos para la presentación */
-        .slide {
-            display: none;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        .slide.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* --- Estilos de la Malla Curricular --- */
-        .scene {
-            perspective: 800px;
-            min-height: 95px;
-        }
-        .flipper {
-            width: 100%;
-            height: 100%;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-            position: relative;
-        }
-        .scene.is-flipped .flipper {
-            transform: rotateY(180deg);
-        }
+        .highlight-row { background-color: #374151; }
+        .highlight-good { color: #4ade80; font-weight: 600; }
+        .highlight-bad { color: #f87171; font-weight: 600; }
+        .slide { display: none; }
+        .slide.active { display: block; }
+        .scene { perspective: 800px; min-height: 95px; }
+        .flipper { width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; position: relative; }
+        .scene.is-flipped .flipper { transform: rotateY(180deg); }
         .course-card {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; display: flex;
+            align-items: center; justify-content: center; text-align: center;
+            padding: 0.75rem; border-radius: 0.5rem; cursor: pointer;
+        }
+        .front { font-weight: 600; background-color: #374151; color: #d1d5db; border-left-width: 5px; }
+        .back {
+            background-color: #4b5563; color: #e5e7eb; transform: rotateY(180deg);
+            font-size: 0.75rem; line-height: 1.3; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+        .border-ciencias { border-left-color: #60a5fa; } .border-laboratorios { border-left-color: #34d399; }
+        .border-sociales { border-left-color: #f87171; } .border-clinico { border-left-color: #c084fc; }
+        .border-productivo { border-left-color: #fb923c; } .border-ambiental { border-left-color: #4ade80; }
+        .border-tesis { border-left-color: #9ca3af; } .border-ingles { border-left-color: #7dd3fc; }
+        .malla-container { display: grid; grid-template-columns: repeat(10, minmax(140px, 1fr)); gap: 1.25rem; }
+        .semester { display: flex; flex-direction: column; gap: 1.25rem; }
+
+        /* --- Estilos Perfiles de Egreso --- */
+        .university-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
         }
-        .front {
-            font-weight: 600;
-            background-color: #374151; /* gray-700 */
-            color: #d1d5db; /* gray-300 */
-            border-left-width: 5px;
+        .university-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
         }
-        .back {
-            background-color: #4b5563; /* gray-600 */
-            color: #e5e7eb; /* gray-200 */
-            transform: rotateY(180deg);
-            font-size: 0.75rem; /* Texto más pequeño */
-            line-height: 1.3; /* Ajuste de interlineado */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        .proposal-card {
+            border: 2px solid #2dd4bf; /* border-teal-400 */
+            box-shadow: 0 0 15px rgba(45, 212, 191, 0.3);
         }
-
-        /* Paleta de colores de la malla */
-        .border-ciencias { border-left-color: #60a5fa; } /* blue-400 */
-        .border-laboratorios { border-left-color: #34d399; } /* emerald-400 */
-        .border-sociales { border-left-color: #f87171; } /* red-400 */
-        .border-clinico { border-left-color: #c084fc; } /* purple-400 */
-        .border-productivo { border-left-color: #fb923c; } /* orange-400 */
-        .border-ambiental { border-left-color: #4ade80; } /* green-400 */
-        .border-tesis { border-left-color: #9ca3af; } /* gray-400 */
-        .border-ingles { border-left-color: #7dd3fc; } /* sky-300 */
-        
-        /* Estructura de la malla */
-        .malla-container {
-            display: grid;
-            grid-template-columns: repeat(10, minmax(140px, 1fr));
-            gap: 1.25rem;
+        .section-title {
+            position: relative; padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem; border-bottom: 2px solid #38bdf8; /* sky-400 */
         }
-        .semester {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
+        .filter-btn { transition: all 0.2s ease-in-out; }
+        .filter-btn-spec.active.investigacion { background-color: #3b82f6; color: white; }
+        .filter-btn-spec.active.clinico { background-color: #14b8a6; color: white; }
+        .filter-btn-spec.active.productivo { background-color: #f59e0b; color: white; }
+        .filter-btn-spec.active.ambiente { background-color: #22c55e; color: white; }
+        .filter-btn-spec.active.all { background-color: #6366f1; color: white; }
+        .filter-btn-region.active { background-color: #a855f7; color: white; font-weight: 600; }
+        .modal { transition: opacity 0.3s ease; }
+        .modal-content { transition: transform 0.3s ease; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200">
 
-    <div class="container mx-auto p-4 md:p-8">
-        <!-- Encabezado del Dashboard -->
-        <header class="mb-8 text-center">
-            <h1 class="text-4xl font-bold text-indigo-400">Bioquímica: Carreras en Chile</h1>
-            <p class="text-lg text-gray-400 mt-2">Análisis comparativo de universidades y Malla Curricular de Referencia (Datos 2024/2025)</p>
-        </header>
+    <!-- Header Unificado -->
+    <header class="bg-gray-800 shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-white">Análisis Completo de Bioquímica en Chile</h1>
+            <p class="text-sm md:text-base text-gray-400">Datos de Carreras y Perfiles de Egreso (2024/2025)</p>
+        </div>
+        <!-- Navegación Principal -->
+        <nav id="main-tabs" class="container mx-auto px-6 flex border-b border-gray-700">
+            <button data-target="carreras-content" class="main-tab active text-gray-400 font-semibold py-3 px-4 border-b-2 border-transparent hover:text-white">Análisis de Carreras</button>
+            <button data-target="perfiles-content" class="main-tab text-gray-400 font-semibold py-3 px-4 border-b-2 border-transparent hover:text-white">Perfiles de Egreso</button>
+        </nav>
+    </header>
 
-        <!-- Selector de Pestañas de Universidad -->
-        <div id="university-tabs-container" class="mb-8">
-            <div id="university-tabs" class="flex flex-wrap justify-center gap-1 border-b-2 border-gray-700 pb-2">
-                <!-- Las pestañas se generarán con JavaScript -->
+    <!-- Contenedor Principal de Contenido -->
+    <main class="container mx-auto px-6 py-8">
+        
+        <!-- Contenido: Análisis de Carreras -->
+        <div id="carreras-content" class="tab-content">
+            <div class="container mx-auto p-4 md:p-8">
+                <header class="mb-8 text-center">
+                    <h1 class="text-4xl font-bold text-indigo-400">Bioquímica: Carreras en Chile</h1>
+                    <p class="text-lg text-gray-400 mt-2">Análisis comparativo de universidades y Malla Curricular de Referencia</p>
+                </header>
+
+                <div id="university-tabs-container" class="mb-8">
+                    <div id="region-filter-container" class="mb-4 flex justify-center"></div>
+                    <div id="university-tabs" class="flex flex-wrap justify-center items-start gap-2 border-b-2 border-gray-700 pb-4"></div>
+                </div>
+
+                <div id="presentation-container" class="relative">
+                    <main>
+                        <div class="slide active">
+                             <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                     <div class="metric-card bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-center items-center text-center">
+                                         <h3 class="text-lg font-semibold text-gray-400">Arancel Anual 2025</h3>
+                                         <p id="arancel-anual" class="text-3xl font-bold text-indigo-400 mt-2">-</p>
+                                     </div>
+                                     <div class="metric-card bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-center items-center text-center">
+                                         <h3 class="text-lg font-semibold text-gray-400">Promedio PAES 1er Año</h3>
+                                         <p id="promedio-paes" class="text-3xl font-bold text-indigo-400 mt-2">-</p>
+                                     </div>
+                                     <div class="metric-card bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-center items-center text-center">
+                                         <h3 class="text-lg font-semibold text-gray-400">Matrícula Total '24</h3>
+                                         <p id="matricula-total" class="text-3xl font-bold text-indigo-400 mt-2">-</p>
+                                     </div>
+                                     <div class="metric-card bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-center items-center text-center">
+                                         <h3 class="text-lg font-semibold text-gray-400">Vacantes 2025</h3>
+                                         <p id="vacantes" class="text-3xl font-bold text-indigo-400 mt-2">-</p>
+                                     </div>
+                                      <div class="metric-card sm:col-span-2 bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-center items-center text-center">
+                                         <h3 class="text-lg font-semibold text-gray-400">Sitio Web Carrera</h3>
+                                         <a id="career-link" href="#" target="_blank" class="mt-2 text-indigo-400 hover:text-indigo-300 transition-colors duration-200">
+                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                             <span class="mt-1 block text-sm">Visitar Sitio</span>
+                                         </a>
+                                     </div>
+                                 </div>
+                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
+                                     <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                                         <h3 class="text-xl font-semibold mb-4 text-center">Ponderaciones de Admisión</h3>
+                                         <div class="chart-container" style="min-height: 250px;">
+                                             <canvas id="ponderaciones-chart"></canvas>
+                                             <div id="ponderaciones-nodata" class="no-data-message hidden">No hay datos</div>
+                                         </div>
+                                     </div>
+                                     <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                                         <h3 class="text-xl font-semibold text-gray-400 mb-4 text-center">Origen Socioeconómico</h3>
+                                         <div class="chart-container" style="min-height: 250px;">
+                                             <canvas id="origen-chart"></canvas>
+                                             <div id="origen-nodata" class="no-data-message hidden">No hay datos</div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </section>
+                        </div>
+                        <div class="slide">
+                            <section class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                                <h3 class="text-xl font-semibold mb-4 text-center">Comparativa (Arancel vs. Puntaje PAES)</h3>
+                                <div class="chart-container" style="min-height: 65vh;"><canvas id="comparativa-chart"></canvas></div>
+                            </section>
+                        </div>
+                        <div class="slide">
+                            <section class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                                <h3 class="text-xl font-semibold mb-4 text-center">Indicadores de Empleabilidad y Retención</h3>
+                                <div class="overflow-x-auto relative">
+                                    <table id="indicators-table" class="w-full text-sm text-left text-gray-400">
+                                        <thead class="text-xs text-gray-300 uppercase bg-gray-700">
+                                            <tr>
+                                                <th scope="col" class="py-3 px-6 rounded-l-lg">Institución</th>
+                                                <th scope="col" class="py-3 px-6 text-center">Continuidad (%)</th>
+                                                <th scope="col" class="py-3 px-6 text-center">Retención (%)</th>
+                                                <th scope="col" class="py-3 px-6 text-center">Duración (sem.)</th>
+                                                <th scope="col" class="py-3 px-6 text-center">Empleab. 1er Año (%)</th>
+                                                <th scope="col" class="py-3 px-6 text-center">Empleab. 2º Año (%)</th>
+                                                <th scope="col" class="py-3 px-6 rounded-r-lg">Ingreso 4º Año</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="indicators-table-body"></tbody>
+                                    </table>
+                                </div>
+                            </section>
+                        </div>
+                        <div class="slide">
+                            <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                                    <h3 class="text-xl font-semibold mb-4 text-center">Retención 1er Año (%)</h3>
+                                    <div class="chart-container" style="min-height: 300px;"><canvas id="retencion-chart"></canvas></div>
+                                </div>
+                                <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                                    <h3 class="text-xl font-semibold mb-4 text-center">Duración Real (semestres)</h3>
+                                    <div class="chart-container" style="min-height: 300px;"><canvas id="duracion-chart"></canvas></div>
+                                </div>
+                                <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                                    <h3 class="text-xl font-semibold mb-4 text-center">Empleabilidad 1er Año (%)</h3>
+                                    <div class="chart-container" style="min-height: 300px;"><canvas id="empleabilidad1-chart"></canvas></div>
+                                </div>
+                                <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                                    <h3 class="text-xl font-semibold mb-4 text-center">Empleabilidad 2º Año (%)</h3>
+                                    <div class="chart-container" style="min-height: 300px;"><canvas id="empleabilidad2-chart"></canvas></div>
+                                </div>
+                            </section>
+                        </div>
+                        <div class="slide">
+                            <div class="w-full mx-auto bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-700">
+                                <h1 class="text-3xl md:text-4xl font-bold text-center text-white mb-8">Malla Propuesta UPLA</h1>
+                                <div class="overflow-x-auto pb-4">
+                                    <div class="grid grid-cols-5 text-center mb-2">
+                                        <div class="font-bold text-lg text-gray-300 col-span-1">Año 1</div>
+                                        <div class="font-bold text-lg text-gray-300 col-span-1">Año 2</div>
+                                        <div class="font-bold text-lg text-gray-300 col-span-1">Año 3</div>
+                                        <div class="font-bold text-lg text-gray-300 col-span-1">Año 4</div>
+                                        <div class="font-bold text-lg text-gray-300 col-span-1">Año 5</div>
+                                    </div>
+                                    <hr class="mb-6 border-gray-600">
+                                    <div class="malla-container text-sm">
+                                        <div class="semester" id="sem-1"><h2 class="font-semibold text-center text-gray-400">1º Semestre</h2></div>
+                                        <div class="semester" id="sem-2"><h2 class="font-semibold text-center text-gray-400">2º Semestre</h2></div>
+                                        <div class="semester" id="sem-3"><h2 class="font-semibold text-center text-gray-400">3º Semestre</h2></div>
+                                        <div class="semester" id="sem-4"><h2 class="font-semibold text-center text-gray-400">4º Semestre</h2></div>
+                                        <div class="semester" id="sem-5"><h2 class="font-semibold text-center text-gray-400">5º Semestre</h2></div>
+                                        <div class="semester" id="sem-6"><h2 class="font-semibold text-center text-gray-400">6º Semestre</h2></div>
+                                        <div class="semester" id="sem-7"><h2 class="font-semibold text-center text-gray-400">7º Semestre</h2></div>
+                                        <div class="semester" id="sem-8"><h2 class="font-semibold text-center text-gray-400">8º Semestre</h2></div>
+                                        <div class="semester" id="sem-9"><h2 class="font-semibold text-center text-gray-400">9º Semestre</h2></div>
+                                        <div class="semester" id="sem-10"><h2 class="font-semibold text-center text-gray-400">10º Semestre</h2></div>
+                                    </div>
+                                </div>
+                                <div class="mt-8 pt-6 border-t border-gray-700">
+                                    <h2 class="text-xl font-bold text-white mb-4 text-center">Leyenda de Enfoques</h2>
+                                    <div class="flex flex-wrap justify-center gap-4 text-sm">
+                                        <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #34d399;"></div><span>Laboratorios</span></div>
+                                        <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #f87171;"></div><span>Habilidades sociales</span></div>
+                                        <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #60a5fa;"></div><span>Ciencias Básicas</span></div>
+                                        <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #c084fc;"></div><span>Enfoque Clínico</span></div>
+                                        <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #fb923c;"></div><span>Enfoque Productivo</span></div>
+                                        <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #4ade80;"></div><span>Enfoque Ambiental</span></div>
+                                        <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #9ca3af;"></div><span>TESIS y/o PRÁCTICAS</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                    <div class="mt-8 flex justify-center items-center gap-8">
+                        <button id="prev-slide" class="p-2 rounded-full bg-gray-700 hover:bg-indigo-500 text-white transition disabled:opacity-50 disabled:cursor-not-allowed"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+                        <div id="slide-indicators" class="flex gap-2"></div>
+                        <button id="next-slide" class="p-2 rounded-full bg-gray-700 hover:bg-indigo-500 text-white transition disabled:opacity-50 disabled:cursor-not-allowed"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Contenedor Principal de la Presentación -->
-        <div id="presentation-container" class="relative">
-            <main>
-                <!-- Slide 1: KPIs y Gráficos iniciales -->
-                <div class="slide active">
-                     <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                         <!-- Columna Izquierda: KPIs -->
-                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                             <div class="metric-card bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-center items-center text-center">
-                                 <h3 class="text-lg font-semibold text-gray-400">Arancel Anual 2025</h3>
-                                 <p id="arancel-anual" class="text-3xl font-bold text-indigo-400 mt-2">-</p>
-                             </div>
-                             <div class="metric-card bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-center items-center text-center">
-                                 <h3 class="text-lg font-semibold text-gray-400">Promedio PAES 1er Año</h3>
-                                 <p id="promedio-paes" class="text-3xl font-bold text-indigo-400 mt-2">-</p>
-                             </div>
-                             <div class="metric-card bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-center items-center text-center">
-                                 <h3 class="text-lg font-semibold text-gray-400">Matrícula Total '24</h3>
-                                 <p id="matricula-total" class="text-3xl font-bold text-indigo-400 mt-2">-</p>
-                             </div>
-                             <div class="metric-card bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-center items-center text-center">
-                                 <h3 class="text-lg font-semibold text-gray-400">Vacantes 2025</h3>
-                                 <p id="vacantes" class="text-3xl font-bold text-indigo-400 mt-2">-</p>
-                             </div>
-                              <div class="metric-card sm:col-span-2 bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-center items-center text-center">
-                                 <h3 class="text-lg font-semibold text-gray-400">Sitio Web Carrera</h3>
-                                 <a id="career-link" href="#" target="_blank" class="mt-2 text-indigo-400 hover:text-indigo-300 transition-colors duration-200">
-                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                     </svg>
-                                     <span class="mt-1 block text-sm">Visitar Sitio</span>
-                                 </a>
-                             </div>
-                         </div>
-
-                         <!-- Columna Derecha: Gráficos de Admisión -->
-                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
-                             <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
-                                 <h3 class="text-xl font-semibold mb-4 text-center">Ponderaciones de Admisión</h3>
-                                 <div class="chart-container" style="min-height: 250px;">
-                                     <canvas id="ponderaciones-chart"></canvas>
-                                     <div id="ponderaciones-nodata" class="no-data-message hidden">No hay datos</div>
-                                 </div>
-                             </div>
-                             <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
-                                 <h3 class="text-xl font-semibold text-gray-400 mb-4 text-center">Origen Socioeconómico</h3>
-                                 <div class="chart-container" style="min-height: 250px;">
-                                     <canvas id="origen-chart"></canvas>
-                                     <div id="origen-nodata" class="no-data-message hidden">No hay datos</div>
-                                 </div>
-                             </div>
-                         </div>
-                     </section>
-                </div>
-                
-                <!-- Slide 2: Comparativa General -->
-                <div class="slide">
-                    <section class="bg-gray-800 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-xl font-semibold mb-4 text-center">Comparativa (Arancel vs. Puntaje PAES)</h3>
-                        <div class="chart-container" style="min-height: 65vh;">
-                            <canvas id="comparativa-chart"></canvas>
+        <!-- Contenido: Perfiles de Egreso -->
+        <div id="perfiles-content" class="tab-content" style="display: none;">
+             <section id="filters" class="mb-10 p-6 bg-gray-800 rounded-lg shadow-md">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-white">Filtrar por Eje de Especialización:</h3>
+                        <div id="filter-container-spec" class="flex flex-wrap gap-3">
+                            <button class="filter-btn filter-btn-spec active all font-semibold bg-gray-700 hover:bg-indigo-500 text-white py-2 px-4 rounded-full" data-filter="all">Todas</button>
+                            <button class="filter-btn filter-btn-spec investigacion bg-gray-700 hover:bg-blue-500 text-white py-2 px-4 rounded-full" data-filter="investigacion">Investigación</button>
+                            <button class="filter-btn filter-btn-spec clinico bg-gray-700 hover:bg-teal-500 text-white py-2 px-4 rounded-full" data-filter="clinico">Clínico y Calidad</button>
+                            <button class="filter-btn filter-btn-spec productivo bg-gray-700 hover:bg-amber-500 text-white py-2 px-4 rounded-full" data-filter="productivo">I+D+i y Productivo</button>
+                            <button class="filter-btn filter-btn-spec ambiente bg-gray-700 hover:bg-green-500 text-white py-2 px-4 rounded-full" data-filter="ambiente">Bioética y Ambiente</button>
                         </div>
-                    </section>
-                </div>
-                
-                <!-- Slide 3: Tabla Indicadores -->
-                <div class="slide">
-                    <section class="bg-gray-800 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-xl font-semibold mb-4 text-center">Indicadores de Empleabilidad y Retención</h3>
-                        <div class="overflow-x-auto relative">
-                            <table id="indicators-table" class="w-full text-sm text-left text-gray-400">
-                                <thead class="text-xs text-gray-300 uppercase bg-gray-700">
-                                    <tr>
-                                        <th scope="col" class="py-3 px-6 rounded-l-lg">Institución</th>
-                                        <th scope="col" class="py-3 px-6 text-center">Continuidad (%)</th>
-                                        <th scope="col" class="py-3 px-6 text-center">Retención (%)</th>
-                                        <th scope="col" class="py-3 px-6 text-center">Duración (sem.)</th>
-                                        <th scope="col" class="py-3 px-6 text-center">Empleab. 1er Año (%)</th>
-                                        <th scope="col" class="py-3 px-6 text-center">Empleab. 2º Año (%)</th>
-                                        <th scope="col" class="py-3 px-6 rounded-r-lg">Ingreso 4º Año</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="indicators-table-body"></tbody>
-                            </table>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- Slide 4: Gráficos Indicadores -->
-                <div class="slide">
-                    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
-                            <h3 class="text-xl font-semibold mb-4 text-center">Retención 1er Año (%)</h3>
-                            <div class="chart-container" style="min-height: 300px;">
-                                <canvas id="retencion-chart"></canvas>
-                            </div>
-                        </div>
-                        <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
-                            <h3 class="text-xl font-semibold mb-4 text-center">Duración Real (semestres)</h3>
-                            <div class="chart-container" style="min-height: 300px;">
-                                <canvas id="duracion-chart"></canvas>
-                            </div>
-                        </div>
-                        <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
-                            <h3 class="text-xl font-semibold mb-4 text-center">Empleabilidad 1er Año (%)</h3>
-                            <div class="chart-container" style="min-height: 300px;">
-                                <canvas id="empleabilidad1-chart"></canvas>
-                            </div>
-                        </div>
-                        <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
-                            <h3 class="text-xl font-semibold mb-4 text-center">Empleabilidad 2º Año (%)</h3>
-                            <div class="chart-container" style="min-height: 300px;">
-                                <canvas id="empleabilidad2-chart"></canvas>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- Slide 5: Malla Curricular -->
-                <div class="slide">
-                    <div class="w-full mx-auto bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-700">
-                        <h1 class="text-3xl md:text-4xl font-bold text-center text-white mb-8">Malla Propuesta UPLA</h1>
-                        
-                        <div class="overflow-x-auto pb-4">
-                            <div class="grid grid-cols-5 text-center mb-2">
-                                <div class="font-bold text-lg text-gray-300 col-span-1">Año 1</div>
-                                <div class="font-bold text-lg text-gray-300 col-span-1">Año 2</div>
-                                <div class="font-bold text-lg text-gray-300 col-span-1">Año 3</div>
-                                <div class="font-bold text-lg text-gray-300 col-span-1">Año 4</div>
-                                <div class="font-bold text-lg text-gray-300 col-span-1">Año 5</div>
-                            </div>
-                             <hr class="mb-6 border-gray-600">
-                            
-                            <div class="malla-container text-sm">
-                                <!-- Columnas de Semestres (se llenan con JS) -->
-                                <div class="semester" id="sem-1"><h2 class="font-semibold text-center text-gray-400">1º Semestre</h2></div>
-                                <div class="semester" id="sem-2"><h2 class="font-semibold text-center text-gray-400">2º Semestre</h2></div>
-                                <div class="semester" id="sem-3"><h2 class="font-semibold text-center text-gray-400">3º Semestre</h2></div>
-                                <div class="semester" id="sem-4"><h2 class="font-semibold text-center text-gray-400">4º Semestre</h2></div>
-                                <div class="semester" id="sem-5"><h2 class="font-semibold text-center text-gray-400">5º Semestre</h2></div>
-                                <div class="semester" id="sem-6"><h2 class="font-semibold text-center text-gray-400">6º Semestre</h2></div>
-                                <div class="semester" id="sem-7"><h2 class="font-semibold text-center text-gray-400">7º Semestre</h2></div>
-                                <div class="semester" id="sem-8"><h2 class="font-semibold text-center text-gray-400">8º Semestre</h2></div>
-                                <div class="semester" id="sem-9"><h2 class="font-semibold text-center text-gray-400">9º Semestre</h2></div>
-                                <div class="semester" id="sem-10"><h2 class="font-semibold text-center text-gray-400">10º Semestre</h2></div>
-                            </div>
-                        </div>
-
-                        <!-- Leyenda -->
-                        <div class="mt-8 pt-6 border-t border-gray-700">
-                            <h2 class="text-xl font-bold text-white mb-4 text-center">Leyenda de Enfoques</h2>
-                            <div class="flex flex-wrap justify-center gap-4 text-sm">
-                                <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #34d399;"></div><span>Laboratorios</span></div>
-                                <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #f87171;"></div><span>Habilidades sociales</span></div>
-                                <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #60a5fa;"></div><span>Ciencias Básicas</span></div>
-                                <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #c084fc;"></div><span>Enfoque Clínico</span></div>
-                                <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #fb923c;"></div><span>Enfoque Productivo</span></div>
-                                <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #4ade80;"></div><span>Enfoque Ambiental</span></div>
-                                <div class="flex items-center space-x-2 p-2 rounded-lg bg-gray-700"><div class="w-4 h-4 rounded-full" style="background-color: #9ca3af;"></div><span>TESIS y/o PRÁCTICAS</span></div>
-                            </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-white">Filtrar por Región:</h3>
+                        <div id="filter-container-region" class="flex flex-wrap gap-3">
+                            <button class="filter-btn filter-btn-region active bg-gray-700 hover:bg-purple-500 text-white py-2 px-4 rounded-full" data-filter="all">Todas</button>
+                            <button class="filter-btn filter-btn-region bg-gray-700 hover:bg-purple-500 text-white py-2 px-4 rounded-full" data-filter="norte">Norte</button>
+                            <button class="filter-btn filter-btn-region bg-gray-700 hover:bg-purple-500 text-white py-2 px-4 rounded-full" data-filter="valparaiso">Valparaíso</button>
+                            <button class="filter-btn filter-btn-region bg-gray-700 hover:bg-purple-500 text-white py-2 px-4 rounded-full" data-filter="metropolitana">Metropolitana</button>
+                            <button class="filter-btn filter-btn-region bg-gray-700 hover:bg-purple-500 text-white py-2 px-4 rounded-full" data-filter="centro-sur">Centro-Sur</button>
                         </div>
                     </div>
                 </div>
-
-            </main>
-
-             <!-- Navegación de la presentación -->
-            <div class="mt-8 flex justify-center items-center gap-8">
-                <button id="prev-slide" class="p-2 rounded-full bg-gray-700 hover:bg-indigo-500 text-white transition disabled:opacity-50 disabled:cursor-not-allowed">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-                </button>
-                <div id="slide-indicators" class="flex gap-2"></div>
-                <button id="next-slide" class="p-2 rounded-full bg-gray-700 hover:bg-indigo-500 text-white transition disabled:opacity-50 disabled:cursor-not-allowed">
-                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-                </button>
+            </section>
+            <section id="perfiles">
+                <h2 class="text-3xl font-bold text-center mb-8 section-title text-white">Perfiles de Egreso por Universidad</h2>
+                <div id="universities-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            </section>
+            <section id="analysis-charts" class="mt-16">
+                <h2 class="text-3xl font-bold text-center mb-8 section-title text-white">Análisis Gráfico de Enfoques</h2>
+                <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-xl font-semibold text-center mb-4 text-sky-400">Distribución de Enfoques a Nivel Nacional</h3>
+                            <canvas id="nationalChart"></canvas>
+                        </div>
+                        <div class="text-gray-300">
+                            <p class="mb-4">El gráfico nacional revela que los perfiles de Bioquímica en Chile se concentran mayoritariamente en <strong class="text-white">Investigación</strong> y el área <strong class="text-white">Clínica y de Calidad</strong>.</p>
+                            <p class="mb-4">En contraste, el eje de <strong class="text-green-400">Bioética y Ambiente</strong> es el menos explorado, representando un nicho de especialización. Esto posiciona la propuesta de la <strong class="text-teal-400">UPLA</strong> como una alternativa <strong class="text-white">altamente diferenciada y pertinente</strong> frente a la crisis climática actual.</p>
+                        </div>
+                    </div>
+                    <hr class="my-8 border-gray-700">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                        <div class="text-gray-300 lg:order-last">
+                            <p class="mb-4">A nivel regional, la <strong class="text-teal-400">UPLA</strong> no solo se convertiría en la <strong class="text-white">primera universidad pública en ofrecer Bioquímica</strong>, sino que también <strong class="text-white">duplicaría la oferta con enfoque ambiental</strong> en Valparaíso.</p>
+                            <p>Esta propuesta fortalece la descentralización y genera un polo de desarrollo científico-tecnológico en la región, enfocado en resolver problemáticas socioambientales locales y globales.</p>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-center mb-4 text-sky-400">Concentración de Enfoques en la Región de Valparaíso</h3>
+                            <canvas id="regionalChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+    <!-- Modal para Perfiles -->
+    <div id="university-modal" class="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden opacity-0">
+        <div id="modal-content" class="modal-content bg-gray-800 rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-8 relative transform scale-95">
+            <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
+            <h2 id="modal-title" class="text-3xl font-bold text-sky-400 mb-4"></h2>
+            <div id="modal-body" class="space-y-4 text-gray-300">
+                 <h3 class="text-xl font-semibold text-white mt-4 border-b border-gray-600 pb-2">Perfil Detallado</h3>
+                 <p id="modal-description"></p>
+                 <h3 class="text-xl font-semibold text-white mt-4 border-b border-gray-600 pb-2">Competencias Técnicas</h3>
+                 <ul id="modal-tecnicas" class="list-disc list-inside space-y-1"></ul>
+                 <h3 class="text-xl font-semibold text-white mt-4 border-b border-gray-600 pb-2">Competencias Transversales</h3>
+                 <ul id="modal-transversales" class="list-disc list-inside space-y-1"></ul>
+                 <h3 class="text-xl font-semibold text-white mt-4 border-b border-gray-600 pb-2">Campo Ocupacional</h3>
+                 <p id="modal-campo"></p>
+                 <div class="mt-6 text-center">
+                    <a id="modal-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-block bg-sky-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-sky-600 transition-colors">Visitar Sitio Web de la Carrera</a>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Footer Unificado -->
+    <footer class="text-center py-6 mt-8 bg-gray-800 text-gray-500">
+        <p>Análisis consolidado basado en información pública de universidades chilenas.</p>
+    </footer>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- DATA PARA LA MALLA CURRICULAR ---
-            const courses = {
-                1: [
-                    { title: 'Química General', color: 'border-ciencias', desc: 'Principios de estructura atómica, enlaces y reacciones.' },
-                    { title: 'Biología Celular', color: 'border-ciencias', desc: 'Análisis de la estructura, función y procesos moleculares de la célula.' },
-                    { title: 'Matemáticas 1', color: 'border-ciencias', desc: 'Introducción al cálculo diferencial e integral y sus aplicaciones.' },
-                    { title: 'Introducción a la Bioquímica', color: 'border-ciencias', desc: 'Visión general de las biomoléculas y su rol en sistemas vivos.' },
-                    { title: 'Laboratorio de Biología Celular', color: 'border-laboratorios', desc: 'Técnicas de microscopía y análisis celular.' },
-                    { title: 'Laboratorio de Química General', color: 'border-laboratorios', desc: 'Prácticas sobre reacciones, mediciones y seguridad.' },
-                    { title: 'Comunicación Académica', color: 'border-sociales', desc: 'Habilidades de redacción y presentación de trabajos científicos.' },
-                    { title: 'Inglés 1', color: 'border-ingles', desc: 'Vocabulario técnico y comprensión de lectura para fines académicos.' },
-                ],
-                2: [
-                    { title: 'Química Orgánica', color: 'border-ciencias', desc: 'Estudio de la estructura y reacciones de compuestos de carbono.' },
-                    { title: 'Física 1', color: 'border-ciencias', desc: 'Mecánica clásica, cinemática y energía en sistemas biológicos.' },
-                    { title: 'Matemáticas 2', color: 'border-ciencias', desc: 'Cálculo multivariable, ecuaciones diferenciales y álgebra lineal.' },
-                    null,
-                    { title: 'Laboratorio de Química Orgánica', color: 'border-laboratorios', desc: 'Técnicas de síntesis y caracterización de compuestos orgánicos.' },
-                    null,
-                    { title: 'Sociedad y Medio Ambiente', color: 'border-sociales', desc: 'Análisis del impacto de la actividad humana en el medio ambiente.' }
-                ],
-                3: [
-                    { title: 'Química Analítica', color: 'border-ciencias', desc: 'Técnicas de separación, identificación y cuantificación de sustancias.' },
-                    { title: 'Física 2', color: 'border-ciencias', desc: 'Fundamentos de electromagnetismo, ondas y óptica.' },
-                    { title: 'Fisicoquímica', color: 'border-ciencias', desc: 'Principios de termodinámica y cinética en sistemas químicos.' },
-                    { title: 'Bioquímica 1', color: 'border-ciencias', desc: 'Metabolismo de carbohidratos y lípidos. Bioenergética.' },
-                    { title: 'Laboratorio de Química Analítica', color: 'border-laboratorios', desc: 'Uso de instrumentación para análisis cualitativo y cuantitativo.' },
-                    { title: 'Laboratorio de Física', color: 'border-laboratorios', desc: 'Experimentación en circuitos, magnetismo y óptica.' },
-                    { title: 'Ética y Responsabilidad Social', color: 'border-sociales', desc: 'Discusión de dilemas éticos y bioética en la ciencia.' },
-                    { title: 'Inglés 2', color: 'border-ingles', desc: 'Nivel intermedio. Escritura de resúmenes y artículos.' },
-                ],
-                4: [
-                    { title: 'Fisiología General', color: 'border-ciencias', desc: 'Funcionamiento de sistemas de órganos y homeostasis.' },
-                    { title: 'Microbiología General', color: 'border-ciencias', desc: 'Estudio de la diversidad y genética de microorganismos.' },
-                    { title: 'Bioquímica 2', color: 'border-ciencias', desc: 'Metabolismo de aminoácidos y nucleótidos. Integración metabólica.' },
-                    { title: 'Genética y Genómica', color: 'border-ciencias', desc: 'Principios de herencia y estudio de la estructura de genomas.' },
-                    { title: 'Laboratorio de Microbiología', color: 'border-laboratorios', desc: 'Técnicas de cultivo y cuantificación de microorganismos.' },
-                    { title: 'Laboratorio de Bioquímica', color: 'border-laboratorios', desc: 'Purificación, caracterización y cinética de enzimas.' },
-                    null,
-                    { title: 'Inglés 3', color: 'border-ingles', desc: 'Nivel avanzado. Preparación de presentaciones orales científicas.' },
-                ],
-                5: [
-                    { title: 'Biología Molecular', color: 'border-ciencias', desc: 'Replicación, transcripción y traducción. ADN recombinante.' },
-                    { title: 'Microbiología Ambiental', color: 'border-ambiental', desc: 'Rol de microorganismos en ciclos biogeoquímicos y biorremediación.' },
-                    { title: 'Bioquímica Vegetal', color: 'border-ambiental', desc: 'Metabolismo de plantas, incluyendo fotosíntesis.' },
-                    { title: 'Biotecnología Ambiental', color: 'border-productivo', desc: 'Uso de procesos biológicos para la sostenibilidad.' },
-                    { title: 'Laboratorio de Biología Molecular', color: 'border-laboratorios', desc: 'Técnicas como PCR, clonación y análisis de expresión génica.' },
-                    null, null,
-                    { title: 'Inglés 4', color: 'border-ingles', desc: 'Preparación para certificaciones y redacción de artículos.' },
-                ],
-                6: [
-                     { title: 'Bioestadística', color: 'border-ciencias', desc: 'Métodos estadísticos para diseño experimental y análisis de datos.' },
-                     { title: 'Biodiversidad y Recursos', color: 'border-ambiental', desc: 'Estudio de la variedad de la vida y gestión sostenible de recursos.' },
-                     { title: 'Biología Marina', color: 'border-ambiental', desc: 'Organismos marinos, sus adaptaciones y ecología de océanos.' },
-                     null,
-                     { title: 'Metodología de la Investigación', color: 'border-laboratorios', desc: 'Diseño de proyectos de investigación y análisis crítico.' },
-                     { title: 'Taller de Vinculación', color: 'border-sociales', desc: 'Desarrollo de proyectos con impacto social y comunitario.' }
-                ],
-                7: [
-                    { title: 'Bioinformática', color: 'border-clinico', desc: 'Uso de herramientas computacionales para analizar datos biológicos.' },
-                    { title: 'Bioquímica Clínica', color: 'border-clinico', desc: 'Bases moleculares de enfermedades y uso de biomarcadores.' },
-                    { title: 'Farmacología', color: 'border-clinico', desc: 'Interacción de fármacos con sistemas biológicos y sus mecanismos.' },
-                    { title: 'Unidad de Investigación 1', color: 'border-laboratorios', desc: 'Inicio de tesis: definición del problema y diseño experimental.', fullHeight: true },
-                ],
-                8: [
-                    { title: 'Biotecnología e Ing. Genética', color: 'border-productivo', desc: 'Aplicación de ingeniería genética en la producción de fármacos.' },
-                    { title: 'Ecotoxicología', color: 'border-ambiental', desc: 'Efectos de contaminantes químicos en los ecosistemas.' },
-                    { title: 'Medio Ambiente y Cambio Climático', color: 'border-ambiental', desc: 'Causas y consecuencias del cambio climático.' },
-                    { title: 'Unidad de Investigación 2', color: 'border-laboratorios', desc: 'Desarrollo experimental del proyecto de tesis y análisis de datos.', fullHeight: true },
-                ],
-                9: [
-                    { title: 'Memoria de Título 1', color: 'border-tesis', desc: 'Análisis de resultados y redacción de la tesis.', fullHeight: true },
-                    { title: 'Práctica Profesional', color: 'border-laboratorios', desc: 'Inserción en entorno laboral para aplicar conocimientos.', fullHeight: true }
-                ],
-                10: [
-                     { title: 'Memoria de Título 2', color: 'border-tesis', desc: 'Finalización, defensa oral del trabajo y proceso de titulación.', fullHeight: true }
-                ]
-            };
-            
-            // --- FUNCIÓN PARA RENDERIZAR LA MALLA ---
-            const renderCurriculum = () => {
-                Object.keys(courses).forEach(semesterKey => {
-                    const semesterDiv = document.getElementById(`sem-${semesterKey}`);
-                    // Limpiar contenido previo para evitar duplicados si se llama varias veces
-                    semesterDiv.innerHTML = `<h2 class="font-semibold text-center text-gray-400">${semesterKey}º Semestre</h2>`;
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        // --- LÓGICA DE NAVEGACIÓN PRINCIPAL ---
+        const mainTabs = document.querySelectorAll('.main-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        mainTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                mainTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
 
-                    const semesterCourses = courses[semesterKey];
-
-                    semesterCourses.forEach(course => {
-                        if (course) {
-                            const scene = document.createElement('div');
-                            scene.className = 'scene';
-                            if (course.fullHeight) {
-                                scene.classList.add('h-full');
-                            }
-
-                            const flipper = document.createElement('div');
-                            flipper.className = 'flipper';
-
-                            const front = document.createElement('div');
-                            front.className = `course-card front ${course.color}`;
-                            front.textContent = course.title;
-
-                            const back = document.createElement('div');
-                            back.className = 'course-card back';
-                            back.textContent = course.desc;
-
-                            flipper.appendChild(front);
-                            flipper.appendChild(back);
-                            scene.appendChild(flipper);
-                            semesterDiv.appendChild(scene);
-
-                            scene.addEventListener('click', () => {
-                                scene.classList.toggle('is-flipped');
-                            });
-                        } else {
-                            const emptyDiv = document.createElement('div');
-                            emptyDiv.style.minHeight = '95px';
-                            semesterDiv.appendChild(emptyDiv);
-                        }
-                    });
+                const targetId = tab.dataset.target;
+                tabContents.forEach(content => {
+                    if (content.id === targetId) {
+                        content.style.display = 'block';
+                    } else {
+                        content.style.display = 'none';
+                    }
                 });
-            };
-            
-            // --- INICIO DE LA LÓGICA DEL DASHBOARD ---
-            Chart.register(ChartDataLabels);
-            Chart.defaults.font.family = "'Inter', sans-serif";
-            Chart.defaults.color = '#d1d5db';
-            Chart.defaults.borderColor = '#4b5563';
+            });
+        });
 
-            // --- DATA STORE ---
-            const careerData = [
-                { "Universidad": "UNIVERSIDAD DE CHILE", "Link": "https://admisionuchile.cl/career/bioquimica/", "Región": "Metropolitana", "Duración (sem.)": 11, "Arancel Anual 2025": 5967900, "Matrícula Total '24": 101, "Matrícula 1er Año '24": 50, "Vacantes": 39, "Prom. PAES 1er Año": 822.8, "Prom. NEM": 6.8, "P. NEM": 10, "P. Ranking": 20, "P. Lenguaje": 10, "P. M1": 20, "P. M2": 10, "P. Ciencias": 30, "P. Historia": 0, "Origen Municipal (%)": 22.0, "Origen Part. Subv. (%)": 45.0, "Origen Part. Pagado (%)": 33.0 },
-                { "Universidad": "UNIVERSIDAD DE VIÑA DEL MAR", "Link": "https://www.uvm.cl/bioquimica/", "Región": "Valparaíso", "Duración (sem.)": 10, "Arancel Anual 2025": 4484000, "Matrícula Total '24": 10, "Matrícula 1er Año '24": 9, "Vacantes": 30, "Prom. PAES 1er Año": null, "Prom. NEM": null, "P. NEM": 0, "P. Ranking": 0, "P. Lenguaje": 50, "P. M1": 50, "P. M2": 0, "P. Ciencias": 0, "P. Historia": 0, "Origen Municipal (%)": null, "Origen Part. Subv. (%)": null, "Origen Part. Pagado (%)": null },
-                { "Universidad": "UNIVERSIDAD SAN SEBASTIAN", "Link": "http://www.uss.cl/medicina/carrera/bioquimica/malla-curricular/", "Región": "Metropolitana", "Duración (sem.)": 10, "Arancel Anual 2025": 6103500, "Matrícula Total '24": 203, "Matrícula 1er Año '24": 68, "Vacantes": 80, "Prom. PAES 1er Año": 665.2, "Prom. NEM": 6.1, "P. NEM": 20, "P. Ranking": 20, "P. Lenguaje": 25, "P. M1": 25, "P. M2": 0, "P. Ciencias": 10, "P. Historia": 10, "Origen Municipal (%)": 20.9, "Origen Part. Subv. (%)": 60.7, "Origen Part. Pagado (%)": 15.4 },
-                { "Universidad": "PONTIFICIA UC DE VALPARAISO", "Link": "https://www.pucv.cl/pucv/pregrado/bioquimica", "Región": "Valparaíso", "Duración (sem.)": 10, "Arancel Anual 2025": 4968000, "Matrícula Total '24": 355, "Matrícula 1er Año '24": 73, "Vacantes": 60, "Prom. PAES 1er Año": 675.2, "Prom. NEM": 6.3, "P. NEM": 20, "P. Ranking": 20, "P. Lenguaje": 20, "P. M1": 30, "P. M2": 0, "P. Ciencias": 10, "P. Historia": 10, "Origen Municipal (%)": 20.6, "Origen Part. Subv. (%)": 63.4, "Origen Part. Pagado (%)": 15.1 },
-                { "Universidad": "UNIVERSIDAD ANDRES BELLO", "Link": "https://facultades.unab.cl/cienciasdelavida/carrera/bioquimica/", "Región": "Metropolitana", "Duración (sem.)": 10, "Arancel Anual 2025": 6160000, "Matrícula Total '24": 283, "Matrícula 1er Año '24": 63, "Vacantes": 65, "Prom. PAES 1er Año": 695.6, "Prom. NEM": 6.2, "P. NEM": 20, "P. Ranking": 30, "P. Lenguaje": 10, "P. M1": 20, "P. M2": 0, "P. Ciencias": 20, "P. Historia": 0, "Origen Municipal (%)": 15.1, "Origen Part. Subv. (%)": 54.8, "Origen Part. Pagado (%)": 29.7 },
-                { "Universidad": "UNIVERSIDAD DE TALCA", "Link": "https://www.bioquimica.utalca.cl/", "Región": "Maule", "Duración (sem.)": 10, "Arancel Anual 2025": 4925000, "Matrícula Total '24": 179, "Matrícula 1er Año '24": 46, "Vacantes": 50, "Prom. PAES 1er Año": 685.6, "Prom. NEM": 6.5, "P. NEM": 20, "P. Ranking": 30, "P. Lenguaje": 10, "P. M1": 25, "P. M2": 0, "P. Ciencias": 15, "P. Historia": 0, "Origen Municipal (%)": 35.6, "Origen Part. Subv. (%)": 56.5, "Origen Part. Pagado (%)": 7.9 },
-                { "Universidad": "PONTIFICIA UC DE CHILE", "Link": "https://biologia.uc.cl/carrera-de-bioquimica/", "Región": "Metropolitana", "Duración (sem.)": 10, "Arancel Anual 2025": 7018000, "Matrícula Total '24": 310, "Matrícula 1er Año '24": 50, "Vacantes": 40, "Prom. PAES 1er Año": 865.2, "Prom. NEM": 6.8, "P. NEM": 20, "P. Ranking": 20, "P. Lenguaje": 10, "P. M1": 30, "P. M2": 0, "P. Ciencias": 20, "P. Historia": 0, "Origen Municipal (%)": 14.3, "Origen Part. Subv. (%)": 31.9, "Origen Part. Pagado (%)": 53.4 },
-                { "Universidad": "UNIVERSIDAD DE CONCEPCION", "Link": "https://admision.udec.cl/bioquimica/", "Región": "Biobío", "Duración (sem.)": 12, "Arancel Anual 2025": 5809366, "Matrícula Total '24": 398, "Matrícula 1er Año '24": 53, "Vacantes": 54, "Prom. PAES 1er Año": 793.3, "Prom. NEM": 6.6, "P. NEM": 15, "P. Ranking": 25, "P. Lenguaje": 15, "P. M1": 35, "P. M2": 0, "P. Ciencias": 10, "P. Historia": 0, "Origen Municipal (%)": 23.0, "Origen Part. Subv. (%)": 59.8, "Origen Part. Pagado (%)": 16.7 },
-                { "Universidad": "UNIVERSIDAD DE LA FRONTERA", "Link": "https://icbioquimica.ufro.cl/", "Región": "La Araucanía", "Duración (sem.)": 10, "Arancel Anual 2025": 4949000, "Matrícula Total '24": 156, "Matrícula 1er Año '24": 31, "Vacantes": 30, "Prom. PAES 1er Año": 712.7, "Prom. NEM": 6.4, "P. NEM": 10, "P. Ranking": 40, "P. Lenguaje": 10, "P. M1": 25, "P. M2": 0, "P. Ciencias": 15, "P. Historia": 0, "Origen Municipal (%)": 31.6, "Origen Part. Subv. (%)": 60.6, "Origen Part. Pagado (%)": 7.1 },
-                { "Universidad": "UNIVERSIDAD AUSTRAL DE CHILE", "Link": "https://www.uach.cl/admision/valdivia/bioquimica", "Región": "Los Ríos", "Duración (sem.)": 10, "Arancel Anual 2025": 4922000, "Matrícula Total '24": 238, "Matrícula 1er Año '24": 59, "Vacantes": 50, "Prom. PAES 1er Año": 675.7, "Prom. NEM": 6.4, "P. NEM": 10, "P. Ranking": 35, "P. Lenguaje": 15, "P. M1": 25, "P. M2": 0, "P. Ciencias": 15, "P. Historia": 0, "Origen Municipal (%)": 28.9, "Origen Part. Subv. (%)": 58.3, "Origen Part. Pagado (%)": 12.8 },
-                { "Universidad": "UNIVERSIDAD DE ANTOFAGASTA", "Link": "https://www.uantof.cl/carreras/bioquimica/", "Región": "Antofagasta", "Duración (sem.)": 10, "Arancel Anual 2025": 5115000, "Matrícula Total '24": 142, "Matrícula 1er Año '24": 27, "Vacantes": 20, "Prom. PAES 1er Año": 688.1, "Prom. NEM": 6.2, "P. NEM": 10, "P. Ranking": 40, "P. Lenguaje": 20, "P. M1": 20, "P. M2": 0, "P. Ciencias": 10, "P. Historia": 0, "Origen Municipal (%)": 28.1, "Origen Part. Subv. (%)": 62.6, "Origen Part. Pagado (%)": 9.4 },
-                { "Universidad": "UNIVERSIDAD DE SANTIAGO DE CHILE", "Link": "https://www.admision.usach.cl/carreras/bioquimica-y-licenciatura-en-bioquimica", "Región": "Metropolitana", "Duración (sem.)": 10, "Arancel Anual 2025": 6059000, "Matrícula Total '24": 255, "Matrícula 1er Año '24": 51, "Vacantes": 40, "Prom. PAES 1er Año": 752.6, "Prom. NEM": 6.6, "P. NEM": 10, "P. Ranking": 40, "P. Lenguaje": 15, "P. M1": 25, "P. M2": 0, "P. Ciencias": 10, "P. Historia": 0, "Origen Municipal (%)": 29.5, "Origen Part. Subv. (%)": 55.0, "Origen Part. Pagado (%)": 14.3 }
-            ];
-            const indicatorsData = [
-                { keyName: "UNIVERSIDAD DE CHILE", "Institución": "U. de Chile", "Continuidad de Estudios": "22,5%", "Retención 1er Año": "90,4%", "Duración Real (sem.)": 17.1, "Empleabilidad 1er Año": "75,4%", "Empleabilidad 2º Año": "73,6%", "Ingreso 4º Año": "$1.4M - $1.5M" },
-                { keyName: "PONTIFICIA UC DE VALPARAISO", "Institución": "PUC de Valparaíso", "Continuidad de Estudios": "13,4%", "Retención 1er Año": "66,7%", "Duración Real (sem.)": 14.2, "Empleabilidad 1er Año": "74,5%", "Empleabilidad 2º Año": "70,6%", "Ingreso 4º Año": "s/i" },
-                { keyName: "PONTIFICIA UC DE CHILE", "Institución": "PUC de Chile", "Continuidad de Estudios": "16,7%", "Retención 1er Año": "89,6%", "Duración Real (sem.)": 14.5, "Empleabilidad 1er Año": "78,9%", "Empleabilidad 2º Año": "75,4%", "Ingreso 4º Año": "s/i" },
-                { keyName: "UNIVERSIDAD DE CONCEPCION", "Institución": "U. de Concepción", "Continuidad de Estudios": "34,1%", "Retención 1er Año": "76,4%", "Duración Real (sem.)": 16.6, "Empleabilidad 1er Año": "70,0%", "Empleabilidad 2º Año": "82,5%", "Ingreso 4º Año": "$1.4M - $1.5M" },
-                { keyName: "UNIVERSIDAD DE SANTIAGO DE CHILE", "Institución": "U. de Santiago de Chile", "Continuidad de Estudios": "14,9%", "Retención 1er Año": "70,8%", "Duración Real (sem.)": 13.1, "Empleabilidad 1er Año": "83,3%", "Empleabilidad 2º Año": "86,4%", "Ingreso 4º Año": "$1.3M - $1.4M" }
-            ];
+        // --- INICIALIZACIÓN DE AMBOS SCRIPTS ---
+        initCarrerasDashboard();
+        initPerfilesDashboard();
+    });
 
-            // --- CHART INSTANCES & UI ELEMENTS ---
-            let charts = {};
-            const ui = {
-                kpi: {
-                    arancel: document.getElementById('arancel-anual'),
-                    paes: document.getElementById('promedio-paes'),
-                    matricula: document.getElementById('matricula-total'),
-                    vacantes: document.getElementById('vacantes'),
-                    careerLink: document.getElementById('career-link')
-                },
-                charts: {
-                    ponderaciones: { canvas: document.getElementById('ponderaciones-chart'), noData: document.getElementById('ponderaciones-nodata') },
-                    origen: { canvas: document.getElementById('origen-chart'), noData: document.getElementById('origen-nodata') },
-                    comparativa: { canvas: document.getElementById('comparativa-chart') },
-                    retencion: { canvas: document.getElementById('retencion-chart') },
-                    duracion: { canvas: document.getElementById('duracion-chart') },
-                    empleabilidad1: { canvas: document.getElementById('empleabilidad1-chart') },
-                    empleabilidad2: { canvas: document.getElementById('empleabilidad2-chart') }
-                },
-                indicatorsTableBody: document.getElementById('indicators-table-body'),
-            };
-
-            // --- PRESENTATION LOGIC ---
-            const slides = document.querySelectorAll('.slide');
-            const indicatorsContainer = document.getElementById('slide-indicators');
-            let currentSlide = 0;
-
-            const showSlide = (n) => {
-                slides.forEach(slide => slide.classList.remove('active'));
-                slides[n].classList.add('active');
-                
-                document.querySelectorAll('#slide-indicators .dot').forEach((dot, index) => {
-                    dot.classList.toggle('bg-indigo-500', index === n);
-                    dot.classList.toggle('bg-gray-600', index !== n);
+    // =============================================================
+    // --- SCRIPT 1: ANÁLISIS DE CARRERAS (DASHBOARD) ---
+    // =============================================================
+    function initCarrerasDashboard() {
+        const courses = {
+            1: [{ title: 'Química General', color: 'border-ciencias', desc: 'Principios de estructura atómica, enlaces y reacciones.' },{ title: 'Biología Celular', color: 'border-ciencias', desc: 'Análisis de la estructura, función y procesos moleculares de la célula.' },{ title: 'Matemáticas 1', color: 'border-ciencias', desc: 'Introducción al cálculo diferencial e integral y sus aplicaciones.' },{ title: 'Introducción a la Bioquímica', color: 'border-ciencias', desc: 'Visión general de las biomoléculas y su rol en sistemas vivos.' },{ title: 'Laboratorio de Biología Celular', color: 'border-laboratorios', desc: 'Técnicas de microscopía y análisis celular.' },{ title: 'Laboratorio de Química General', color: 'border-laboratorios', desc: 'Prácticas sobre reacciones, mediciones y seguridad.' },{ title: 'Comunicación Académica', color: 'border-sociales', desc: 'Habilidades de redacción y presentación de trabajos científicos.' },{ title: 'Inglés 1', color: 'border-ingles', desc: 'Vocabulario técnico y comprensión de lectura para fines académicos.' },],
+            2: [{ title: 'Química Orgánica', color: 'border-ciencias', desc: 'Estudio de la estructura y reacciones de compuestos de carbono.' },{ title: 'Física 1', color: 'border-ciencias', desc: 'Mecánica clásica, cinemática y energía en sistemas biológicos.' },{ title: 'Matemáticas 2', color: 'border-ciencias', desc: 'Cálculo multivariable, ecuaciones diferenciales y álgebra lineal.' }, null, { title: 'Laboratorio de Química Orgánica', color: 'border-laboratorios', desc: 'Técnicas de síntesis y caracterización de compuestos orgánicos.' }, null, { title: 'Sociedad y Medio Ambiente', color: 'border-sociales', desc: 'Análisis del impacto de la actividad humana en el medio ambiente.' }],
+            3: [{ title: 'Química Analítica', color: 'border-ciencias', desc: 'Técnicas de separación, identificación y cuantificación de sustancias.' },{ title: 'Física 2', color: 'border-ciencias', desc: 'Fundamentos de electromagnetismo, ondas y óptica.' },{ title: 'Fisicoquímica', color: 'border-ciencias', desc: 'Principios de termodinámica y cinética en sistemas químicos.' },{ title: 'Bioquímica 1', color: 'border-ciencias', desc: 'Metabolismo de carbohidratos y lípidos. Bioenergética.' },{ title: 'Laboratorio de Química Analítica', color: 'border-laboratorios', desc: 'Uso de instrumentación para análisis cualitativo y cuantitativo.' },{ title: 'Laboratorio de Física', color: 'border-laboratorios', desc: 'Experimentación en circuitos, magnetismo y óptica.' },{ title: 'Ética y Responsabilidad Social', color: 'border-sociales', desc: 'Discusión de dilemas éticos y bioética en la ciencia.' },{ title: 'Inglés 2', color: 'border-ingles', desc: 'Nivel intermedio. Escritura de resúmenes y artículos.' },],
+            4: [{ title: 'Fisiología General', color: 'border-ciencias', desc: 'Funcionamiento de sistemas de órganos y homeostasis.' },{ title: 'Microbiología General', color: 'border-ciencias', desc: 'Estudio de la diversidad y genética de microorganismos.' },{ title: 'Bioquímica 2', color: 'border-ciencias', desc: 'Metabolismo de aminoácidos y nucleótidos. Integración metabólica.' },{ title: 'Genética y Genómica', color: 'border-ciencias', desc: 'Principios de herencia y estudio de la estructura de genomas.' },{ title: 'Laboratorio de Microbiología', color: 'border-laboratorios', desc: 'Técnicas de cultivo y cuantificación de microorganismos.' },{ title: 'Laboratorio de Bioquímica', color: 'border-laboratorios', desc: 'Purificación, caracterización y cinética de enzimas.' }, null, { title: 'Inglés 3', color: 'border-ingles', desc: 'Nivel avanzado. Preparación de presentaciones orales científicas.' },],
+            5: [{ title: 'Biología Molecular', color: 'border-ciencias', desc: 'Replicación, transcripción y traducción. ADN recombinante.' },{ title: 'Microbiología Ambiental', color: 'border-ambiental', desc: 'Rol de microorganismos en ciclos biogeoquímicos y biorremediación.' },{ title: 'Bioquímica Vegetal', color: 'border-ambiental', desc: 'Metabolismo de plantas, incluyendo fotosíntesis.' },{ title: 'Biotecnología Ambiental', color: 'border-productivo', desc: 'Uso de procesos biológicos para la sostenibilidad.' },{ title: 'Laboratorio de Biología Molecular', color: 'border-laboratorios', desc: 'Técnicas como PCR, clonación y análisis de expresión génica.' }, null, null, { title: 'Inglés 4', color: 'border-ingles', desc: 'Preparación para certificaciones y redacción de artículos.' },],
+            6: [{ title: 'Bioestadística', color: 'border-ciencias', desc: 'Métodos estadísticos para diseño experimental y análisis de datos.' },{ title: 'Biodiversidad y Recursos', color: 'border-ambiental', desc: 'Estudio de la variedad de la vida y gestión sostenible de recursos.' },{ title: 'Biología Marina', color: 'border-ambiental', desc: 'Organismos marinos, sus adaptaciones y ecología de océanos.' }, null, { title: 'Metodología de la Investigación', color: 'border-laboratorios', desc: 'Diseño de proyectos de investigación y análisis crítico.' },{ title: 'Taller de Vinculación', color: 'border-sociales', desc: 'Desarrollo de proyectos con impacto social y comunitario.' }],
+            7: [{ title: 'Bioinformática', color: 'border-clinico', desc: 'Uso de herramientas computacionales para analizar datos biológicos.' },{ title: 'Bioquímica Clínica', color: 'border-clinico', desc: 'Bases moleculares de enfermedades y uso de biomarcadores.' },{ title: 'Farmacología', color: 'border-clinico', desc: 'Interacción de fármacos con sistemas biológicos y sus mecanismos.' },{ title: 'Unidad de Investigación 1', color: 'border-laboratorios', desc: 'Inicio de tesis: definición del problema y diseño experimental.', fullHeight: true },],
+            8: [{ title: 'Biotecnología e Ing. Genética', color: 'border-productivo', desc: 'Aplicación de ingeniería genética en la producción de fármacos.' },{ title: 'Ecotoxicología', color: 'border-ambiental', desc: 'Efectos de contaminantes químicos en los ecosistemas.' },{ title: 'Medio Ambiente y Cambio Climático', color: 'border-ambiental', desc: 'Causas y consecuencias del cambio climático.' },{ title: 'Unidad de Investigación 2', color: 'border-laboratorios', desc: 'Desarrollo experimental del proyecto de tesis y análisis de datos.', fullHeight: true },],
+            9: [{ title: 'Memoria de Título 1', color: 'border-tesis', desc: 'Análisis de resultados y redacción de la tesis.', fullHeight: true },{ title: 'Práctica Profesional', color: 'border-laboratorios', desc: 'Inserción en entorno laboral para aplicar conocimientos.', fullHeight: true }],
+            10: [{ title: 'Memoria de Título 2', color: 'border-tesis', desc: 'Finalización, defensa oral del trabajo y proceso de titulación.', fullHeight: true }]
+        };
+        const renderCurriculum = () => {
+            Object.keys(courses).forEach(semesterKey => {
+                const semesterDiv = document.getElementById(`sem-${semesterKey}`);
+                semesterDiv.innerHTML = `<h2 class="font-semibold text-center text-gray-400">${semesterKey}º Semestre</h2>`;
+                courses[semesterKey].forEach(course => {
+                    if (course) {
+                        const scene = document.createElement('div');
+                        scene.className = 'scene';
+                        if (course.fullHeight) scene.classList.add('h-full');
+                        const flipper = document.createElement('div');
+                        flipper.className = 'flipper';
+                        const front = document.createElement('div');
+                        front.className = `course-card front ${course.color}`;
+                        front.textContent = course.title;
+                        const back = document.createElement('div');
+                        back.className = 'course-card back';
+                        back.textContent = course.desc;
+                        flipper.appendChild(front);
+                        flipper.appendChild(back);
+                        scene.appendChild(flipper);
+                        semesterDiv.appendChild(scene);
+                        scene.addEventListener('click', () => scene.classList.toggle('is-flipped'));
+                    } else {
+                        const emptyDiv = document.createElement('div');
+                        emptyDiv.style.minHeight = '95px';
+                        semesterDiv.appendChild(emptyDiv);
+                    }
                 });
+            });
+        };
+        Chart.register(ChartDataLabels);
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#d1d5db';
+        Chart.defaults.borderColor = '#4b5563';
+        const careerData = [
+            { "Universidad": "UNIVERSIDAD DE CHILE", "Link": "https://admisionuchile.cl/career/bioquimica/", "Región": "Metropolitana", "Duración (sem.)": 11, "Arancel Anual 2025": 5967900, "Matrícula Total '24": 101, "Matrícula 1er Año '24": 50, "Vacantes": 39, "Prom. PAES 1er Año": 822.8, "Prom. NEM": 6.8, "P. NEM": 10, "P. Ranking": 20, "P. Lenguaje": 10, "P. M1": 20, "P. M2": 10, "P. Ciencias": 30, "P. Historia": 0, "Origen Municipal (%)": 22.0, "Origen Part. Subv. (%)": 45.0, "Origen Part. Pagado (%)": 33.0 },
+            { "Universidad": "UNIVERSIDAD DE VIÑA DEL MAR", "Link": "https://www.uvm.cl/bioquimica/", "Región": "Valparaíso", "Duración (sem.)": 10, "Arancel Anual 2025": 4484000, "Matrícula Total '24": 10, "Matrícula 1er Año '24": 9, "Vacantes": 30, "Prom. PAES 1er Año": null, "Prom. NEM": null, "P. NEM": 0, "P. Ranking": 0, "P. Lenguaje": 50, "P. M1": 50, "P. M2": 0, "P. Ciencias": 0, "P. Historia": 0, "Origen Municipal (%)": null, "Origen Part. Subv. (%)": null, "Origen Part. Pagado (%)": null },
+            { "Universidad": "UNIVERSIDAD SAN SEBASTIAN", "Link": "http://www.uss.cl/medicina/carrera/bioquimica/malla-curricular/", "Región": "Metropolitana", "Duración (sem.)": 10, "Arancel Anual 2025": 6103500, "Matrícula Total '24": 203, "Matrícula 1er Año '24": 68, "Vacantes": 80, "Prom. PAES 1er Año": 665.2, "Prom. NEM": 6.1, "P. NEM": 20, "P. Ranking": 20, "P. Lenguaje": 25, "P. M1": 25, "P. M2": 0, "P. Ciencias": 10, "P. Historia": 10, "Origen Municipal (%)": 20.9, "Origen Part. Subv. (%)": 60.7, "Origen Part. Pagado (%)": 15.4 },
+            { "Universidad": "PONTIFICIA UC DE VALPARAISO", "Link": "https://www.pucv.cl/pucv/pregrado/bioquimica", "Región": "Valparaíso", "Duración (sem.)": 10, "Arancel Anual 2025": 4968000, "Matrícula Total '24": 355, "Matrícula 1er Año '24": 73, "Vacantes": 60, "Prom. PAES 1er Año": 675.2, "Prom. NEM": 6.3, "P. NEM": 20, "P. Ranking": 20, "P. Lenguaje": 20, "P. M1": 30, "P. M2": 0, "P. Ciencias": 10, "P. Historia": 10, "Origen Municipal (%)": 20.6, "Origen Part. Subv. (%)": 63.4, "Origen Part. Pagado (%)": 15.1 },
+            { "Universidad": "UNIVERSIDAD ANDRES BELLO", "Link": "https://facultades.unab.cl/cienciasdelavida/carrera/bioquimica/", "Región": "Metropolitana", "Duración (sem.)": 10, "Arancel Anual 2025": 6160000, "Matrícula Total '24": 283, "Matrícula 1er Año '24": 63, "Vacantes": 65, "Prom. PAES 1er Año": 695.6, "Prom. NEM": 6.2, "P. NEM": 20, "P. Ranking": 30, "P. Lenguaje": 10, "P. M1": 20, "P. M2": 0, "P. Ciencias": 20, "P. Historia": 0, "Origen Municipal (%)": 15.1, "Origen Part. Subv. (%)": 54.8, "Origen Part. Pagado (%)": 29.7 },
+            { "Universidad": "UNIVERSIDAD DE TALCA", "Link": "https://www.bioquimica.utalca.cl/", "Región": "Maule", "Duración (sem.)": 10, "Arancel Anual 2025": 4925000, "Matrícula Total '24": 179, "Matrícula 1er Año '24": 46, "Vacantes": 50, "Prom. PAES 1er Año": 685.6, "Prom. NEM": 6.5, "P. NEM": 20, "P. Ranking": 30, "P. Lenguaje": 10, "P. M1": 25, "P. M2": 0, "P. Ciencias": 15, "P. Historia": 0, "Origen Municipal (%)": 35.6, "Origen Part. Subv. (%)": 56.5, "Origen Part. Pagado (%)": 7.9 },
+            { "Universidad": "PONTIFICIA UC DE CHILE", "Link": "https://biologia.uc.cl/carrera-de-bioquimica/", "Región": "Metropolitana", "Duración (sem.)": 10, "Arancel Anual 2025": 7018000, "Matrícula Total '24": 310, "Matrícula 1er Año '24": 50, "Vacantes": 40, "Prom. PAES 1er Año": 865.2, "Prom. NEM": 6.8, "P. NEM": 20, "P. Ranking": 20, "P. Lenguaje": 10, "P. M1": 30, "P. M2": 0, "P. Ciencias": 20, "P. Historia": 0, "Origen Municipal (%)": 14.3, "Origen Part. Subv. (%)": 31.9, "Origen Part. Pagado (%)": 53.4 },
+            { "Universidad": "UNIVERSIDAD DE CONCEPCION", "Link": "https://admision.udec.cl/bioquimica/", "Región": "Biobío", "Duración (sem.)": 12, "Arancel Anual 2025": 5809366, "Matrícula Total '24": 398, "Matrícula 1er Año '24": 53, "Vacantes": 54, "Prom. PAES 1er Año": 793.3, "Prom. NEM": 6.6, "P. NEM": 15, "P. Ranking": 25, "P. Lenguaje": 15, "P. M1": 35, "P. M2": 0, "P. Ciencias": 10, "P. Historia": 0, "Origen Municipal (%)": 23.0, "Origen Part. Subv. (%)": 59.8, "Origen Part. Pagado (%)": 16.7 },
+            { "Universidad": "UNIVERSIDAD DE LA FRONTERA", "Link": "https://icbioquimica.ufro.cl/", "Región": "La Araucanía", "Duración (sem.)": 10, "Arancel Anual 2025": 4949000, "Matrícula Total '24": 156, "Matrícula 1er Año '24": 31, "Vacantes": 30, "Prom. PAES 1er Año": 712.7, "Prom. NEM": 6.4, "P. NEM": 10, "P. Ranking": 40, "P. Lenguaje": 10, "P. M1": 25, "P. M2": 0, "P. Ciencias": 15, "P. Historia": 0, "Origen Municipal (%)": 31.6, "Origen Part. Subv. (%)": 60.6, "Origen Part. Pagado (%)": 7.1 },
+            { "Universidad": "UNIVERSIDAD AUSTRAL DE CHILE", "Link": "https://www.uach.cl/admision/valdivia/bioquimica", "Región": "Los Ríos", "Duración (sem.)": 10, "Arancel Anual 2025": 4922000, "Matrícula Total '24": 238, "Matrícula 1er Año '24": 59, "Vacantes": 50, "Prom. PAES 1er Año": 675.7, "Prom. NEM": 6.4, "P. NEM": 10, "P. Ranking": 35, "P. Lenguaje": 15, "P. M1": 25, "P. M2": 0, "P. Ciencias": 15, "P. Historia": 0, "Origen Municipal (%)": 28.9, "Origen Part. Subv. (%)": 58.3, "Origen Part. Pagado (%)": 12.8 },
+            { "Universidad": "UNIVERSIDAD DE ANTOFAGASTA", "Link": "https://www.uantof.cl/carreras/bioquimica/", "Región": "Antofagasta", "Duración (sem.)": 10, "Arancel Anual 2025": 5115000, "Matrícula Total '24": 142, "Matrícula 1er Año '24": 27, "Vacantes": 20, "Prom. PAES 1er Año": 688.1, "Prom. NEM": 6.2, "P. NEM": 10, "P. Ranking": 40, "P. Lenguaje": 20, "P. M1": 20, "P. M2": 0, "P. Ciencias": 10, "P. Historia": 0, "Origen Municipal (%)": 28.1, "Origen Part. Subv. (%)": 62.6, "Origen Part. Pagado (%)": 9.4 },
+            { "Universidad": "UNIVERSIDAD DE SANTIAGO DE CHILE", "Link": "https://www.admision.usach.cl/carreras/bioquimica-y-licenciatura-en-bioquimica", "Región": "Metropolitana", "Duración (sem.)": 10, "Arancel Anual 2025": 6059000, "Matrícula Total '24": 255, "Matrícula 1er Año '24": 51, "Vacantes": 40, "Prom. PAES 1er Año": 752.6, "Prom. NEM": 6.6, "P. NEM": 10, "P. Ranking": 40, "P. Lenguaje": 15, "P. M1": 25, "P. M2": 0, "P. Ciencias": 10, "P. Historia": 0, "Origen Municipal (%)": 29.5, "Origen Part. Subv. (%)": 55.0, "Origen Part. Pagado (%)": 14.3 }
+        ];
+        const indicatorsData = [
+            { keyName: "UNIVERSIDAD DE CHILE", "Institución": "U. de Chile", "Continuidad de Estudios": "22,5%", "Retención 1er Año": "90,4%", "Duración Real (sem.)": 17.1, "Empleabilidad 1er Año": "75,4%", "Empleabilidad 2º Año": "73,6%", "Ingreso 4º Año": "$1.4M - $1.5M" },
+            { keyName: "PONTIFICIA UC DE VALPARAISO", "Institución": "PUC de Valparaíso", "Continuidad de Estudios": "13,4%", "Retención 1er Año": "66,7%", "Duración Real (sem.)": 14.2, "Empleabilidad 1er Año": "74,5%", "Empleabilidad 2º Año": "70,6%", "Ingreso 4º Año": "s/i" },
+            { keyName: "PONTIFICIA UC DE CHILE", "Institución": "PUC de Chile", "Continuidad de Estudios": "16,7%", "Retención 1er Año": "89,6%", "Duración Real (sem.)": 14.5, "Empleabilidad 1er Año": "78,9%", "Empleabilidad 2º Año": "75,4%", "Ingreso 4º Año": "s/i" },
+            { keyName: "UNIVERSIDAD DE CONCEPCION", "Institución": "U. de Concepción", "Continuidad de Estudios": "34,1%", "Retención 1er Año": "76,4%", "Duración Real (sem.)": 16.6, "Empleabilidad 1er Año": "70,0%", "Empleabilidad 2º Año": "82,5%", "Ingreso 4º Año": "$1.4M - $1.5M" },
+            { keyName: "UNIVERSIDAD DE SANTIAGO DE CHILE", "Institución": "U. de Santiago de Chile", "Continuidad de Estudios": "14,9%", "Retención 1er Año": "70,8%", "Duración Real (sem.)": 13.1, "Empleabilidad 1er Año": "83,3%", "Empleabilidad 2º Año": "86,4%", "Ingreso 4º Año": "$1.3M - $1.4M" }
+        ];
 
-                document.getElementById('prev-slide').disabled = n === 0;
-                document.getElementById('next-slide').disabled = n === slides.length - 1;
-                currentSlide = n;
-            };
+        let charts = {};
+        const ui = {
+            kpi: { arancel: document.getElementById('arancel-anual'), paes: document.getElementById('promedio-paes'), matricula: document.getElementById('matricula-total'), vacantes: document.getElementById('vacantes'), careerLink: document.getElementById('career-link') },
+            charts: { ponderaciones: { canvas: document.getElementById('ponderaciones-chart'), noData: document.getElementById('ponderaciones-nodata') }, origen: { canvas: document.getElementById('origen-chart'), noData: document.getElementById('origen-nodata') }, comparativa: { canvas: document.getElementById('comparativa-chart') }, retencion: { canvas: document.getElementById('retencion-chart') }, duracion: { canvas: document.getElementById('duracion-chart') }, empleabilidad1: { canvas: document.getElementById('empleabilidad1-chart') }, empleabilidad2: { canvas: document.getElementById('empleabilidad2-chart') } },
+            indicatorsTableBody: document.getElementById('indicators-table-body'),
+        };
 
+        const slides = document.querySelectorAll('#carreras-content .slide');
+        const indicatorsContainer = document.getElementById('slide-indicators');
+        let currentSlide = 0;
+
+        const showSlide = (n) => {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[n].classList.add('active');
+            document.querySelectorAll('#slide-indicators .dot').forEach((dot, index) => {
+                dot.classList.toggle('bg-indigo-500', index === n);
+                dot.classList.toggle('bg-gray-600', index !== n);
+            });
+            document.getElementById('prev-slide').disabled = n === 0;
+            document.getElementById('next-slide').disabled = n === slides.length - 1;
+            currentSlide = n;
+        };
+
+        if (indicatorsContainer.children.length === 0) {
             for(let i = 0; i < slides.length; i++) {
                 const dot = document.createElement('button');
                 dot.classList.add('dot', 'w-3', 'h-3', 'rounded-full', 'transition');
                 dot.onclick = () => showSlide(i);
                 indicatorsContainer.appendChild(dot);
             }
-            document.getElementById('prev-slide').onclick = () => showSlide(currentSlide - 1);
-            document.getElementById('next-slide').onclick = () => showSlide(currentSlide + 1);
-            
-            // --- UTILITY FUNCTIONS ---
-            const formatCurrency = (v) => v ? new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(v) : 'N/I';
-            const formatNumber = (v) => v ? new Intl.NumberFormat('es-CL').format(v) : 'N/I';
-            const parsePercent = (str) => parseFloat(str.replace('%', '').replace(',', '.'));
-            
-            // --- RENDER FUNCTIONS ---
-            const renderKpisAndLink = (data) => {
-                ui.kpi.arancel.textContent = formatCurrency(data['Arancel Anual 2025']);
-                ui.kpi.paes.textContent = data['Prom. PAES 1er Año'] ? data['Prom. PAES 1er Año'].toFixed(1) : 'N/I';
-                ui.kpi.matricula.textContent = formatNumber(data["Matrícula Total '24"]);
-                ui.kpi.vacantes.textContent = formatNumber(data.Vacantes);
-                const linkElement = ui.kpi.careerLink, linkContainer = linkElement.parentElement;
-                if (data.Link) {
-                    linkElement.href = data.Link;
-                    linkContainer.classList.remove('opacity-50', 'cursor-not-allowed');
-                    linkElement.classList.remove('pointer-events-none');
-                } else {
-                    linkElement.href = '#';
-                    linkContainer.classList.add('opacity-50', 'cursor-not-allowed');
-                    linkElement.classList.add('pointer-events-none');
-                }
-            };
+        }
+        document.getElementById('prev-slide').onclick = () => showSlide(currentSlide - 1);
+        document.getElementById('next-slide').onclick = () => showSlide(currentSlide + 1);
+        
+        const formatCurrency = (v) => v ? new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(v) : 'N/I';
+        const formatNumber = (v) => v ? new Intl.NumberFormat('es-CL').format(v) : 'N/I';
+        const parsePercent = (str) => typeof str === 'string' ? parseFloat(str.replace('%', '').replace(',', '.')) : (str || 0);
+        
+        const renderKpisAndLink = (data) => {
+            ui.kpi.arancel.textContent = formatCurrency(data['Arancel Anual 2025']);
+            ui.kpi.paes.textContent = data['Prom. PAES 1er Año'] ? data['Prom. PAES 1er Año'].toFixed(1) : 'N/I';
+            ui.kpi.matricula.textContent = formatNumber(data["Matrícula Total '24"]);
+            ui.kpi.vacantes.textContent = formatNumber(data.Vacantes);
+            const linkElement = ui.kpi.careerLink, linkContainer = linkElement.parentElement;
+            if (data.Link) {
+                linkElement.href = data.Link;
+                linkContainer.classList.remove('opacity-50', 'cursor-not-allowed');
+                linkElement.classList.remove('pointer-events-none');
+            } else {
+                linkElement.href = '#';
+                linkContainer.classList.add('opacity-50', 'cursor-not-allowed');
+                linkElement.classList.add('pointer-events-none');
+            }
+        };
 
-            const manageChartVisibility = (chartUI, hasData) => {
-                chartUI.canvas.style.display = hasData ? 'block' : 'none';
-                chartUI.noData.style.display = hasData ? 'none' : 'flex';
-            };
+        const manageChartVisibility = (chartUI, hasData) => {
+            chartUI.canvas.style.display = hasData ? 'block' : 'none';
+            chartUI.noData.style.display = hasData ? 'none' : 'flex';
+        };
 
-            const renderPonderacionesChart = (data) => {
-                const ponderacionesMap = { 'NEM': data['P. NEM'], 'Ranking': data['P. Ranking'], 'Lenguaje': data['P. Lenguaje'], 'M1': data['P. M1'], 'M2': data['P. M2'], 'Ciencias': data['P. Ciencias'], 'Historia': data['P. Historia'] };
-                const labels = Object.keys(ponderacionesMap).filter(key => ponderacionesMap[key] > 0);
-                const values = labels.map(key => ponderacionesMap[key]);
-                const hasData = values.length > 0 && values.some(v => v > 0);
-                manageChartVisibility(ui.charts.ponderaciones, hasData);
-                if (hasData) {
-                    charts.ponderaciones.data.labels = labels;
-                    charts.ponderaciones.data.datasets[0].data = values;
-                    charts.ponderaciones.update();
-                }
-            };
-            
-            const renderOrigenChart = (data) => {
-                const values = [data['Origen Municipal (%)'], data['Origen Part. Subv. (%)'], data['Origen Part. Pagado (%)']];
-                const hasData = !values.every(v => v === null);
-                manageChartVisibility(ui.charts.origen, hasData);
-                if (hasData) {
-                    charts.origen.data.datasets[0].data = values;
-                    charts.origen.update();
-                }
-            };
-            
-            const renderComparativaChart = (selectedUniversity) => {
-                const highlightColor = 'rgba(239, 68, 68, 0.8)', primaryColorArancel = 'rgba(20, 184, 166, 0.7)', primaryColorPaes = 'rgba(250, 204, 21, 0.7)';
-                charts.comparativa.data.datasets[0].backgroundColor = careerData.map(uni => uni.Universidad === selectedUniversity ? highlightColor : primaryColorArancel);
-                charts.comparativa.data.datasets[1].backgroundColor = careerData.map(uni => uni.Universidad === selectedUniversity ? highlightColor : primaryColorPaes);
-                charts.comparativa.update();
-            };
+        const renderPonderacionesChart = (data) => {
+            const ponderacionesMap = { 'NEM': data['P. NEM'], 'Ranking': data['P. Ranking'], 'Lenguaje': data['P. Lenguaje'], 'M1': data['P. M1'], 'M2': data['P. M2'], 'Ciencias': data['P. Ciencias'], 'Historia': data['P. Historia'] };
+            const labels = Object.keys(ponderacionesMap).filter(key => ponderacionesMap[key] > 0);
+            const values = labels.map(key => ponderacionesMap[key]);
+            const hasData = values.length > 0 && values.some(v => v > 0);
+            manageChartVisibility(ui.charts.ponderaciones, hasData);
+            if (hasData) {
+                charts.ponderaciones.data.labels = labels;
+                charts.ponderaciones.data.datasets[0].data = values;
+                charts.ponderaciones.update();
+            }
+        };
+        
+        const renderOrigenChart = (data) => {
+            const values = [data['Origen Municipal (%)'], data['Origen Part. Subv. (%)'], data['Origen Part. Pagado (%)']];
+            const hasData = !values.every(v => v === null);
+            manageChartVisibility(ui.charts.origen, hasData);
+            if (hasData) {
+                charts.origen.data.datasets[0].data = values;
+                charts.origen.update();
+            }
+        };
+        
+        const renderComparativaChart = (selectedUniversity) => {
+            const highlightColor = 'rgba(239, 68, 68, 0.8)', primaryColorArancel = 'rgba(20, 184, 166, 0.7)', primaryColorPaes = 'rgba(250, 204, 21, 0.7)';
+            charts.comparativa.data.datasets[0].backgroundColor = charts.comparativa.sortedData.map(uni => uni.Universidad === selectedUniversity ? highlightColor : primaryColorArancel);
+            charts.comparativa.data.datasets[1].backgroundColor = charts.comparativa.sortedData.map(uni => uni.Universidad === selectedUniversity ? highlightColor : primaryColorPaes);
+            charts.comparativa.update();
+        };
 
-            const renderIndicatorsTable = () => {
-                const tableBody = ui.indicatorsTableBody;
-                tableBody.innerHTML = ''; 
-                const stats = {}, columnsToAnalyze = ['Continuidad de Estudios', 'Retención 1er Año', 'Duración Real (sem.)', 'Empleabilidad 1er Año', 'Empleabilidad 2º Año'];
+        const renderIndicatorsTable = () => {
+            const tableBody = ui.indicatorsTableBody;
+            tableBody.innerHTML = ''; 
+            const stats = {}, columnsToAnalyze = ['Continuidad de Estudios', 'Retención 1er Año', 'Duración Real (sem.)', 'Empleabilidad 1er Año', 'Empleabilidad 2º Año'];
+            columnsToAnalyze.forEach(col => {
+                const values = indicatorsData.map(d => typeof d[col] === 'string' && d[col].includes('%') ? parsePercent(d[col]) : d[col]).filter(v => typeof v === 'number' && !isNaN(v));
+                if (values.length > 0) stats[col] = { min: Math.min(...values), max: Math.max(...values) };
+            });
+            indicatorsData.forEach(data => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-700';
+                row.dataset.key = data.keyName;
+                let rowHTML = `<td class="py-4 px-6 font-medium whitespace-nowrap text-white">${data["Institución"]}</td>`;
                 columnsToAnalyze.forEach(col => {
-                    const values = indicatorsData.map(d => typeof d[col] === 'string' && d[col].includes('%') ? parsePercent(d[col]) : d[col]).filter(v => typeof v === 'number' && !isNaN(v));
-                    if (values.length > 0) stats[col] = { min: Math.min(...values), max: Math.max(...values) };
+                    const originalValue = data[col];
+                    let numericValue = typeof originalValue === 'string' && originalValue.includes('%') ? parsePercent(originalValue) : originalValue;
+                    let classes = 'py-4 px-6 text-center';
+                    if (stats[col] && typeof numericValue === 'number') {
+                        const isDuration = col === 'Duración Real (sem.)';
+                        if (numericValue === stats[col].max) classes += isDuration ? ' highlight-bad' : ' highlight-good';
+                        if (numericValue === stats[col].min) classes += isDuration ? ' highlight-good' : ' highlight-bad';
+                    }
+                    rowHTML += `<td class="${classes}">${originalValue}</td>`;
                 });
-                indicatorsData.forEach(data => {
-                    const row = document.createElement('tr');
-                    row.className = 'border-b border-gray-700';
-                    row.dataset.key = data.keyName;
-                    let rowHTML = `<td class="py-4 px-6 font-medium whitespace-nowrap text-white">${data["Institución"]}</td>`;
-                    columnsToAnalyze.forEach(col => {
-                        const originalValue = data[col];
-                        let numericValue = typeof originalValue === 'string' && originalValue.includes('%') ? parsePercent(originalValue) : originalValue;
-                        let classes = 'py-4 px-6 text-center';
-                        if (stats[col] && typeof numericValue === 'number') {
-                            const isDuration = col === 'Duración Real (sem.)';
-                            if (numericValue === stats[col].max) classes += isDuration ? ' highlight-bad' : ' highlight-good';
-                            if (numericValue === stats[col].min) classes += isDuration ? ' highlight-good' : ' highlight-bad';
-                        }
-                        rowHTML += `<td class="${classes}">${originalValue}</td>`;
-                    });
-                    rowHTML += `<td class="py-4 px-6 whitespace-nowrap">${data["Ingreso 4º Año"]}</td>`;
-                    row.innerHTML = rowHTML;
-                    tableBody.appendChild(row);
+                rowHTML += `<td class="py-4 px-6 whitespace-nowrap">${data["Ingreso 4º Año"]}</td>`;
+                row.innerHTML = rowHTML;
+                tableBody.appendChild(row);
+            });
+        };
+
+        const updateIndicatorsTable = (universityName) => {
+            ui.indicatorsTableBody.querySelectorAll('tr').forEach(row => row.classList.toggle('highlight-row', row.dataset.key === universityName));
+        };
+
+        const updateIndicatorBarCharts = (universityName) => {
+            const highlightColor = 'rgba(239, 68, 68, 0.8)';
+            const updateChartColor = (chart) => {
+                if (!chart || !chart.sortedData) return;
+                chart.data.datasets[0].backgroundColor = chart.sortedData.map(d => d.keyName === universityName ? highlightColor : chart.originalColor);
+                chart.update();
+            };
+            ['retencion', 'duracion', 'empleabilidad1', 'empleabilidad2'].forEach(key => updateChartColor(charts[key]));
+        };
+
+        const updateDashboard = (universityName) => {
+            const data = careerData.find(uni => uni.Universidad === universityName);
+            if (!data) return;
+            renderKpisAndLink(data);
+            renderPonderacionesChart(data);
+            renderOrigenChart(data);
+            renderComparativaChart(universityName);
+            updateIndicatorsTable(universityName);
+            updateIndicatorBarCharts(universityName);
+        };
+        
+        renderCurriculum();
+        const tabsContainer = document.getElementById('university-tabs');
+        const filterContainer = document.getElementById('region-filter-container');
+        if (filterContainer.children.length === 0) { // Evita duplicar el filtro
+            const groupedByRegion = careerData.reduce((acc, uni) => {
+                const region = uni.Región;
+                if (!acc[region]) acc[region] = [];
+                acc[region].push(uni);
+                return acc;
+            }, {});
+            const sortedRegions = Object.keys(groupedByRegion).sort();
+
+            const regionSelector = document.createElement('select');
+            regionSelector.className = "bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full max-w-xs p-2.5";
+            
+            const allOption = document.createElement('option');
+            allOption.value = 'all';
+            allOption.textContent = 'Mostrar Todas las Regiones';
+            regionSelector.appendChild(allOption);
+            sortedRegions.forEach(region => {
+                const option = document.createElement('option');
+                option.value = region;
+                option.textContent = region;
+                regionSelector.appendChild(option);
+            });
+            filterContainer.appendChild(regionSelector);
+
+            regionSelector.addEventListener('change', (e) => {
+                const selectedRegion = e.target.value;
+                tabsContainer.querySelectorAll('button').forEach(button => {
+                    button.style.display = (selectedRegion === 'all' || button.dataset.region === selectedRegion) ? 'inline-block' : 'none';
                 });
-            };
+                const firstVisibleButton = tabsContainer.querySelector('button[style*="inline-block"]');
+                if(firstVisibleButton) firstVisibleButton.click();
+            });
 
-            const updateIndicatorsTable = (universityName) => {
-                ui.indicatorsTableBody.querySelectorAll('tr').forEach(row => row.classList.toggle('highlight-row', row.dataset.key === universityName));
-            };
-
-            const updateIndicatorBarCharts = (universityName) => {
-                const highlightColor = 'rgba(239, 68, 68, 0.8)';
-                const updateChartColor = (chart) => {
-                    if (!chart) return;
-                    chart.data.datasets[0].backgroundColor = indicatorsData.map(d => d.keyName === universityName ? highlightColor : chart.originalColor);
-                    chart.update();
-                };
-                ['retencion', 'duracion', 'empleabilidad1', 'empleabilidad2'].forEach(key => updateChartColor(charts[key]));
-            };
-
-            // --- MAIN UPDATE FUNCTION ---
-            const updateDashboard = (universityName) => {
-                const data = careerData.find(uni => uni.Universidad === universityName);
-                if (!data) return;
-                renderKpisAndLink(data);
-                renderPonderacionesChart(data);
-                renderOrigenChart(data);
-                renderComparativaChart(universityName);
-                updateIndicatorsTable(universityName);
-                updateIndicatorBarCharts(universityName);
-            };
-
-            // --- INITIALIZATION ---
-            const init = () => {
-                renderCurriculum(); // Llenar la malla curricular
-                
-                const tabsContainer = document.getElementById('university-tabs');
-                careerData.forEach((uni, index) => {
+            sortedRegions.forEach(region => {
+                groupedByRegion[region].forEach(uni => {
                     const tabButton = document.createElement('button');
                     tabButton.textContent = uni.Universidad.replace('UNIVERSIDAD DE ', 'U. ').replace('UNIVERSIDAD', 'U.').replace('PONTIFICIA UC DE ', 'PUC ');
                     tabButton.dataset.university = uni.Universidad;
-                    tabButton.className = 'px-2 py-2 text-xs font-semibold rounded-t-lg transition-colors duration-200 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-indigo-400';
-                    tabButton.classList.add(index === 0 ? 'bg-gray-800' : 'text-gray-400', index === 0 ? 'text-indigo-400' : 'hover:bg-gray-700');
+                    tabButton.dataset.region = region;
+                    tabButton.className = 'px-2 py-2 text-xs font-semibold rounded-lg transition-colors duration-200 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-indigo-400 text-gray-400 hover:bg-gray-700';
                     tabButton.addEventListener('click', (e) => {
                         tabsContainer.querySelectorAll('button').forEach(btn => {
                             btn.classList.remove('bg-gray-800', 'text-indigo-400');
@@ -677,30 +671,216 @@
                     });
                     tabsContainer.appendChild(tabButton);
                 });
+            });
+            
+            const firstButton = tabsContainer.querySelector('button');
+            if (firstButton) {
+                firstButton.classList.add('bg-gray-800', 'text-indigo-400');
+                firstButton.classList.remove('text-gray-400', 'hover:bg-gray-700');
+            }
+        }
 
-                renderIndicatorsTable();
+        renderIndicatorsTable();
 
-                charts.ponderaciones = new Chart(ui.charts.ponderaciones.canvas, { type: 'doughnut', data: { datasets: [{ backgroundColor: ['#4f46e5', '#7c3aed', '#a78bfa', '#c4b5fd', '#60a5fa', '#38bdf8', '#0ea5e9'], borderWidth: 4, borderColor: '#1f2937' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#d1d5db' } }, datalabels: { color: '#fff', font: { weight: 'bold' }, formatter: (v) => `${v}%` } } } });
-                charts.origen = new Chart(ui.charts.origen.canvas, { type: 'pie', data: { labels: ['Municipal', 'Part. Subv.', 'Part. Pagado'], datasets: [{ backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], borderWidth: 4, borderColor: '#1f2937' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#d1d5db' } }, datalabels: { color: '#fff', font: { weight: 'bold' }, formatter: (v) => v ? `${v.toFixed(1)}%` : '' } } } });
-                charts.comparativa = new Chart(ui.charts.comparativa.canvas, { type: 'bar', data: { labels: careerData.map(uni => uni.Universidad.replace('UNIVERSIDAD', 'U.').replace('PONTIFICIA UC', 'PUC')), datasets: [{ label: 'Arancel Anual', data: careerData.map(uni => uni['Arancel Anual 2025']), yAxisID: 'yArancel' }, { label: 'Promedio PAES', data: careerData.map(uni => uni['Prom. PAES 1er Año']), yAxisID: 'yPaes' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { datalabels: { display: false }, legend: { labels: { color: '#d1d5db' } }, tooltip: { callbacks: { label: (c) => `${c.dataset.label||''}: ${c.dataset.yAxisID==='yArancel'?formatCurrency(c.parsed.y):c.parsed.y.toFixed(1)}` } } }, scales: { x: { ticks: { autoSkip: false, maxRotation: 90, minRotation: 45, font: { size: 10 }, color: '#d1d5db' } }, yArancel: { type: 'linear', position: 'left', title: { display: true, text: 'Arancel ($)', color: '#d1d5db' }, ticks: { callback: (v) => new Intl.NumberFormat('es-CL', { notation: 'compact' }).format(v), color: '#d1d5db' }, grid: { color: '#374151' } }, yPaes: { type: 'linear', position: 'right', title: { display: true, text: 'Puntaje PAES', color: '#d1d5db' }, grid: { drawOnChartArea: false }, suggestedMin: 500, ticks: { color: '#d1d5db' } } } } });
+        charts.ponderaciones = new Chart(ui.charts.ponderaciones.canvas, { type: 'doughnut', data: { datasets: [{ backgroundColor: ['#4f46e5', '#7c3aed', '#a78bfa', '#c4b5fd', '#60a5fa', '#38bdf8', '#0ea5e9'], borderWidth: 4, borderColor: '#1f2937' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#d1d5db' } }, datalabels: { color: '#fff', font: { weight: 'bold' }, formatter: (v) => `${v}%` } } } });
+        charts.origen = new Chart(ui.charts.origen.canvas, { type: 'pie', data: { labels: ['Municipal', 'Part. Subv.', 'Part. Pagado'], datasets: [{ backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], borderWidth: 4, borderColor: '#1f2937' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#d1d5db' } }, datalabels: { color: '#fff', font: { weight: 'bold' }, formatter: (v) => v ? `${v.toFixed(1)}%` : '' } } } });
+        const sortedCareerData = [...careerData].sort((a, b) => (b['Prom. PAES 1er Año'] || 0) - (a['Prom. PAES 1er Año'] || 0));
+        charts.comparativa = new Chart(ui.charts.comparativa.canvas, { type: 'bar', data: { labels: sortedCareerData.map(uni => uni.Universidad.replace('UNIVERSIDAD', 'U.').replace('PONTIFICIA UC', 'PUC')), datasets: [{ label: 'Arancel Anual', data: sortedCareerData.map(uni => uni['Arancel Anual 2025']), yAxisID: 'yArancel' }, { label: 'Promedio PAES', data: sortedCareerData.map(uni => uni['Prom. PAES 1er Año']), yAxisID: 'yPaes' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { datalabels: { display: false }, legend: { labels: { color: '#d1d5db' } }, tooltip: { callbacks: { label: (c) => `${c.dataset.label||''}: ${c.dataset.yAxisID==='yArancel'?formatCurrency(c.parsed.y):c.parsed.y.toFixed(1)}` } } }, scales: { x: { ticks: { autoSkip: false, maxRotation: 90, minRotation: 45, font: { size: 10 }, color: '#d1d5db' } }, yArancel: { type: 'linear', position: 'left', title: { display: true, text: 'Arancel ($)', color: '#d1d5db' }, ticks: { callback: (v) => new Intl.NumberFormat('es-CL', { notation: 'compact' }).format(v), color: '#d1d5db' }, grid: { color: '#374151' } }, yPaes: { type: 'linear', position: 'right', title: { display: true, text: 'Puntaje PAES', color: '#d1d5db' }, grid: { drawOnChartArea: false }, suggestedMin: 500, ticks: { color: '#d1d5db' } } } } });
+        charts.comparativa.sortedData = sortedCareerData;
+        const createIndicatorBarChart = (canvas, label, dataKey, color, unit = '%', axisLabel) => {
+            const sortedData = [...indicatorsData].sort((a, b) => parsePercent(b[dataKey]) - parsePercent(a[dataKey]));
+            const chart = new Chart(canvas, { type: 'bar', data: { labels: sortedData.map(d => d.Institución), datasets: [{ label, data: sortedData.map(d => dataKey === 'Duración Real (sem.)' ? d[dataKey] : parsePercent(d[dataKey])), backgroundColor: color }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { datalabels: { anchor: 'end', align: 'right', color: '#fff', font: { weight: 'bold' }, formatter: (v) => v + unit }, legend: { display: false }, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.raw}${unit}` } } }, scales: { x: { title: { display: true, text: axisLabel || label, color: '#d1d5db' }, ticks: { color: '#d1d5db' }, grid: { color: '#4b5563' } }, y: { grid: { drawOnChartArea: false }, ticks: { color: '#d1d5db' } } } } });
+            chart.originalColor = color;
+            chart.sortedData = sortedData;
+            return chart;
+        };
+        charts.retencion = createIndicatorBarChart(ui.charts.retencion.canvas, 'Retención', 'Retención 1er Año', 'rgba(99, 102, 241, 0.7)', '%');
+        charts.duracion = createIndicatorBarChart(ui.charts.duracion.canvas, 'Duración', 'Duración Real (sem.)', 'rgba(20, 184, 166, 0.7)', ' sem.', 'Semestres');
+        charts.empleabilidad1 = createIndicatorBarChart(ui.charts.empleabilidad1.canvas, 'Empleabilidad 1er Año', 'Empleabilidad 1er Año', 'rgba(250, 204, 21, 0.7)', '%');
+        charts.empleabilidad2 = createIndicatorBarChart(ui.charts.empleabilidad2.canvas, 'Empleabilidad 2º Año', 'Empleabilidad 2º Año', 'rgba(167, 139, 250, 0.7)', '%');
+        showSlide(0);
+        updateDashboard(careerData[0].Universidad);
+    }
 
-                const createIndicatorBarChart = (canvas, label, data, color, unit = '%', axisLabel) => {
-                    const chart = new Chart(canvas, { type: 'bar', data: { labels: indicatorsData.map(d => d.Institución), datasets: [{ label, data, backgroundColor: color }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { datalabels: { anchor: 'end', align: 'right', color: '#fff', font: { weight: 'bold' }, formatter: (v) => v + unit }, legend: { display: false }, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.raw}${unit}` } } }, scales: { x: { title: { display: true, text: axisLabel || label, color: '#d1d5db' }, ticks: { color: '#d1d5db' }, grid: { color: '#4b5563' } }, y: { grid: { drawOnChartArea: false }, ticks: { color: '#d1d5db' } } } } });
-                    chart.originalColor = color;
-                    return chart;
-                };
+    // =============================================================
+    // --- SCRIPT 2: PERFILES DE EGRESO ---
+    // =============================================================
+    function initPerfilesDashboard() {
+        const universitiesData = [
+            { id: "upla", name: "Universidad de Playa Ancha (UPLA) - Propuesta", region: ["valparaiso"], link: "#", description: "El egresado de Bioquímica de la UPLA combina una sólida formación en ciencias básicas con una visión profunda de los desafíos ambientales y sociales...", focus: "Bioquímico con enfoque en Ciencias Ambientales, preparado para abordar la crisis climática con soluciones innovadoras y sostenibles.", field: "Academia (Docencia, Investigación), Salud (Diagnóstico, Investigación), Sector Productivo (Remediación ambiental, Biotecnología) y Tecnología e Innovación.", tags: ["ambiente", "investigacion", "productivo"], competenciasTecnicas: ["Desarrollar soluciones biotecnológicas para la remediación ambiental.", "Investigar el impacto de contaminantes en sistemas biológicos.", "Crear y aplicar estrategias de monitoreo y diagnóstico ambiental."], competenciasTransversales: ["Pensamiento crítico y reflexivo ante problemáticas socioambientales.", "Compromiso ético y responsabilidad social.", "Liderazgo en equipos interdisciplinarios."], differentiators: [{ text: "Enfoque en Sostenibilidad", color: "green" },{ text: "Primera Opción Pública en la Región", color: "blue" },{ text: "Articulación con Postgrado", color: "purple" },{ text: "Vinculación con HUB Ambiental", color: "amber" }] },
+            { id: "uchile", name: "Universidad de Chile (UChile)", region: ["metropolitana"], link: "https://admisionuchile.cl/career/bioquimica/", description: "Profesional especialista en la estructura y función molecular de la célula...", focus: "Especialista en biología molecular y celular, líder en investigación y dirección clínica.", field: "Investigación, biotecnología, dirección de laboratorios clínicos, industria alimentaria, docencia.", tags: ["investigacion", "clinico"], competenciasTecnicas: ["Liderar, dirigir, ejecutar y evaluar proyectos de investigación.", "Dirigir laboratorios de análisis clínicos.", "Docencia y asesorías."], competenciasTransversales: ["Creatividad, análisis y pensamiento crítico.", "Trabajo en equipo con autonomía.", "Comunicación eficaz."] },
+            { id: "uvm", name: "Universidad Viña del Mar (UVM)", region: ["valparaiso"], link: "https://www.uvm.cl/bioquimica/", description: "Perfil orientado a inspirar y empoderar a bioquímicos para contribuir a la ciencia...", focus: "Contribución a la ciencia, salud y sostenibilidad, con énfasis en bioética, calidad y divulgación científica.", field: "Investigación, laboratorios con estándares de calidad, divulgación científica, salud y medio ambiente.", tags: ["clinico", "ambiente"], competenciasTecnicas: ["Analizar procesos químicos.", "Aplicar estándares de calidad y participar en procesos de acreditación.", "Actualización en técnicas e instrumentos."], competenciasTransversales: ["Divulgación científica a la sociedad.", "Innovación.", "Responsabilidad ambiental y comprensión de la interrelación salud-ambiente."] },
+            { id: "uss", name: "Universidad San Sebastián (USS)", region: ["metropolitana", "centro-sur"], link: "http://www.uss.cl/medicina/carrera/bioquimica/malla-curricular/", description: "Profesional íntegro con sólida formación en biología, química y biomedicina...", focus: "Formación íntegra con sello humanista cristiano, orientada a la investigación biomédica con impacto social y gestión de laboratorios.", field: "Investigación, laboratorios clínicos, industria biotecnológica y farmacéutica.", tags: ["investigacion", "clinico"], competenciasTecnicas: ["Formular estrategias experimentales en investigación biomédica.", "Gestionar laboratorios.", "Implementar normativas para asegurar resultados confiables."], competenciasTransversales: ["Ética humanista cristiana.", "Trabajo inter y multidisciplinario.", "Uso de TIC."] },
+            { id: "pucv", name: "Pontificia Universidad Católica de Valparaíso (PUCV)", region: ["valparaiso"], link: "https://www.pucv.cl/pucv/pregrado/bioquimica", description: "Profesional con un sello humanista cristiano y una formación integral...", focus: "Formación biomolecular con sello humanista cristiano, centrada en el rigor procedimental y la ética.", field: "Investigación básica y aplicada, laboratorios clínicos de diagnóstico.", tags: ["clinico", "investigacion"], competenciasTecnicas: ["Realizar procedimientos de análisis.", "Uso de instrumentación.", "Monitorear y documentar sistemáticamente.", "Aplicar normativas de seguridad."], competenciasTransversales: ["Comunicación en español e inglés.", "Análisis, abstracción y reflexión crítica.", "Ciudadanía responsable."] },
+            { id: "unab", name: "Universidad Andrés Bello (UNAB)", region: ["metropolitana"], link: "https://facultades.unab.cl/cienciasdelavida/carrera/bioquimica/", description: "Profesional con una formación químico-biológica general y base matemática...", focus: "Formación de investigadores que dominan el ciclo completo de la investigación y su aplicación en áreas clínica y productiva.", field: "Investigación (básica, clínica, productiva), laboratorios clínicos, sector productivo.", tags: ["investigacion", "clinico", "productivo"], competenciasTecnicas: ["Ciclo completo de investigación.", "Clínica: Interpretar resultados, aplicar aseguramiento de calidad.", "Productiva: Aplicar control de calidad, asesorar."], competenciasTransversales: ["Pensamiento crítico y argumentación.", "Responsabilidad social y respeto al medioambiente.", "Comunicación en inglés."] },
+            { id: "utalca", name: "Universidad de Talca (UTalca)", region: ["centro-sur"], link: "https://www.bioquimica.utalca.cl/", description: "Perfil innovador con sólida formación científica...", focus: "Innovación, I+D+i y transferencia tecnológica para el sector productivo y políticas públicas.", field: "Academia, industria biotecnológica, laboratorios de control de calidad, protección ambiental.", tags: ["productivo"], competenciasTecnicas: ["Diseñar actividades de I+D+i para transferencia tecnológica.", "Aplicar el método científico para proponer soluciones.", "Emplear herramientas de gestión de proyectos."], competenciasTransversales: ["Comunicar eficazmente a distinto público.", "Actuar con sentido ético y responsabilidad social.", "Comunicar en inglés (nivel B1)."] },
+            { id: "uc", name: "Pontificia Universidad Católica de Chile (UC)", region: ["metropolitana"], link: "https://biologia.uc.cl/carrera-de-bioquimica/", description: "Profesional de alto rigor científico con dominio de biología, física, química y matemáticas...", focus: "Alto rigor científico y tecnológico en investigación fundamental, apoyado en ciencias exactas.", field: "Universidades, laboratorios de investigación y diagnóstico, industria (química, farmacéutica, alimentos).", tags: ["investigacion"], competenciasTecnicas: ["Formular, ejecutar y evaluar proyectos.", "Aplicar método científico y métodos estadísticos.", "Realizar memoria de investigación."], competenciasTransversales: ["Alto compromiso ético.", "Rigor científico.", "Responsabilidad por los alcances de su labor."] },
+            { id: "udec", name: "Universidad de Concepción (UdeC)", region: ["centro-sur"], link: "https://admision.udec.cl/bioquimica/", description: "Perfil polivalente que abarca cuatro áreas de desempeño clave...", focus: "Profesional polivalente con 4 focos: Investigación, Laboratorio, Sector Productivo y Emprendimiento.", field: "Investigación, dirección de laboratorios diversos, optimización de procesos productivos, emprendimiento y consultoría.", tags: ["investigacion", "clinico", "productivo"], competenciasTecnicas: ["Formular e implementar proyectos de investigación.", "Dirigir y gestionar laboratorios diversos.", "Evaluar, controlar y optimizar procesos productivos."], competenciasTransversales: ["Principios éticos y bioéticos.", "Liderar y participar en equipos interdisciplinarios.", "Enfoque sustentable."] },
+            { id: "ufro", name: "Universidad de La Frontera (UFRO)", region: ["centro-sur"], link: "https://icbioquimica.ufro.cl/", description: "Profesional orientado a biorrecursos, biomedicina y bioanálisis...", focus: "Especialista en biorrecursos y bioanálisis para resolver problemas agroalimentarios y medioambientales.", field: "Empresas agroindustriales y biotecnológicas, sector público y privado, consultorías.", tags: ["productivo", "ambiente"], competenciasTecnicas: ["Usar técnicas instrumentales, analíticas y de bioinformática avanzadas.", "Mejorar tecnologías y crear soluciones."], competenciasTransversales: ["Aplicar conceptos para la conservación de biota y ambiente.", "Trabajo en equipos multidisciplinarios.", "Contribuir al desarrollo regional."] },
+            { id: "uach", name: "Universidad Austral de Chile (UACh)", region: ["centro-sur"], link: "https://www.uach.cl/admision/valdivia/bioquimica", description: "Formación que integra ciencias básicas y procedenciales con un fuerte énfasis en normas de calidad...", focus: "Integración de ciencias y procedimientos bajo normas de calidad (GLP/ISO), con foco en bioética.", field: "Investigación, salud e investigación biomédica, empresas biotecnológicas y farmacéuticas.", tags: ["clinico", "ambiente"], competenciasTecnicas: ["Aplicar normas ISO y GLP en análisis y control de calidad.", "Gestionar procesos, insumos y productos de laboratorio.", "Gestionar proyectos científicos."], competenciasTransversales: ["Aplicar principios bioéticos.", "Compromiso con protección ambiental y derecho animal.", "Análisis crítico de literatura científica."] },
+            { id: "ua", name: "Universidad de Antofagasta (UA)", region: ["norte"], link: "https://www.uantof.cl/carreras/bioquimica/", description: "Profesional con un perfil científico-humanista y pensamiento crítico...", focus: "Profesional científico-humanista para generar conocimiento y aplicarlo al desarrollo socioeconómico (incluye minería).", field: "Docencia, investigación, industria (biotecnológica, alimentos, farmacéutica, minera), emprendimiento.", tags: ["productivo", "investigacion"], competenciasTecnicas: ["Generar nuevo conocimiento.", "Desarrollar estudios básicos y aplicados.", "Innovar en procesos tecnológicos."], competenciasTransversales: ["Pensamiento crítico.", "Formación científico-humanista.", "Capacidad de innovación y emprendimiento."] },
+            { id: "usach", name: "Universidad de Santiago de Chile (Usach)", region: ["metropolitana"], link: "https://www.admision.usach.cl/carreras/bioquimica-y-licenciatura-en-bioquimica", description: "Profesional con competencias para diseñar e implementar estrategias experimentales...", focus: "Foco en diseño experimental, aseguramiento de la calidad y autoaprendizaje para resolver problemas.", field: "Academia, dirección de laboratorios (clínicos, forenses), industria (agrícola, acuícola, alimentos).", tags: ["investigacion", "clinico"], competenciasTecnicas: ["Diseñar e implementar estrategias experimentales.", "Proponer, diseñar y evaluar proyectos de investigación.", "Aplicar normativas de aseguramiento de la calidad."], competenciasTransversales: ["Autoaprendizaje e iniciativa.", "Análisis crítico y emprendimiento.", "Comunicación en español e inglés."] }
+        ];
 
-                charts.retencion = createIndicatorBarChart(ui.charts.retencion.canvas, 'Retención', indicatorsData.map(d => parsePercent(d['Retención 1er Año'])), 'rgba(99, 102, 241, 0.7)', '%');
-                charts.duracion = createIndicatorBarChart(ui.charts.duracion.canvas, 'Duración', indicatorsData.map(d => d['Duración Real (sem.)']), 'rgba(20, 184, 166, 0.7)', ' sem.', 'Semestres');
-                charts.empleabilidad1 = createIndicatorBarChart(ui.charts.empleabilidad1.canvas, 'Empleabilidad 1er Año', indicatorsData.map(d => parsePercent(d['Empleabilidad 1er Año'])), 'rgba(250, 204, 21, 0.7)', '%');
-                charts.empleabilidad2 = createIndicatorBarChart(ui.charts.empleabilidad2.canvas, 'Empleabilidad 2º Año', indicatorsData.map(d => parsePercent(d['Empleabilidad 2º Año'])), 'rgba(167, 139, 250, 0.7)', '%');
-                
-                showSlide(0);
-                updateDashboard(careerData[0].Universidad);
+        const grid = document.getElementById('universities-grid');
+        const modal = document.getElementById('university-modal');
+        const modalContent = document.getElementById('modal-content');
+        const closeModalBtn = document.getElementById('close-modal');
+        const specFilterContainer = document.getElementById('filter-container-spec');
+        const regionFilterContainer = document.getElementById('filter-container-region');
+
+        const displayUniversities = () => {
+            const activeSpecFilter = specFilterContainer.querySelector('.active').dataset.filter;
+            const activeRegionFilter = regionFilterContainer.querySelector('.active').dataset.filter;
+            grid.innerHTML = '';
+            let filteredUniversities = universitiesData.filter(uni => {
+                const specMatch = activeSpecFilter === 'all' || uni.tags.includes(activeSpecFilter);
+                const regionMatch = activeRegionFilter === 'all' || uni.region.includes(activeRegionFilter);
+                return specMatch && regionMatch;
+            });
+            filteredUniversities.sort((a, b) => {
+                if (a.differentiators && !b.differentiators) return -1;
+                if (!a.differentiators && b.differentiators) return 1;
+                return 0;
+            });
+            const colorClasses = { green: "bg-green-500/20 text-green-300", blue: "bg-blue-500/20 text-blue-300", purple: "bg-purple-500/20 text-purple-300", amber: "bg-amber-500/20 text-amber-300", };
+            filteredUniversities.forEach(uni => {
+                const card = document.createElement('div');
+                card.className = 'university-card bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col';
+                let differentiatorsHTML = '';
+                if (uni.differentiators) {
+                    card.classList.add('proposal-card');
+                    differentiatorsHTML += '<div class="mt-4 border-t border-gray-700 pt-4 space-y-2"><h4 class="font-semibold text-teal-400">Puntos Clave de la Propuesta:</h4>';
+                    uni.differentiators.forEach(item => {
+                       const itemColor = colorClasses[item.color] || "bg-gray-600";
+                       differentiatorsHTML += `<span class="inline-block rounded-full px-3 py-1 text-sm font-semibold mr-2 ${itemColor}">${item.text}</span>`;
+                    });
+                    differentiatorsHTML += '</div>';
+                }
+                card.dataset.id = uni.id;
+                card.innerHTML = `<div class="flex-grow"><h3 class="text-xl font-bold ${uni.differentiators ? 'text-teal-400' : 'text-sky-400'} mb-2">${uni.name}</h3><p class="mb-4 text-gray-300"><strong class="font-semibold text-white">Enfoque Principal:</strong> ${uni.focus}</p><p class="text-gray-400 text-sm"><strong class="font-semibold text-white">Campo Ocupacional:</strong> ${uni.field}</p></div>${differentiatorsHTML}<div class="mt-4 text-right ${uni.differentiators ? 'text-teal-400' : 'text-sky-500'} font-semibold">Ver más detalles &rarr;</div>`;
+                grid.appendChild(card);
+            });
+        };
+        
+        const openModal = (id) => {
+            const uni = universitiesData.find(u => u.id === id);
+            if (!uni) return;
+            document.getElementById('modal-title').textContent = uni.name;
+            document.getElementById('modal-description').textContent = uni.description;
+            document.getElementById('modal-campo').textContent = uni.field;
+            const tecnicasList = document.getElementById('modal-tecnicas');
+            tecnicasList.innerHTML = '';
+            uni.competenciasTecnicas.forEach(item => { const li = document.createElement('li'); li.textContent = item; tecnicasList.appendChild(li); });
+            const transversalesList = document.getElementById('modal-transversales');
+            transversalesList.innerHTML = '';
+            uni.competenciasTransversales.forEach(item => { const li = document.createElement('li'); li.textContent = item; transversalesList.appendChild(li); });
+            const modalLink = document.getElementById('modal-link');
+            if (uni.link && uni.link !== "#") {
+                modalLink.href = uni.link;
+                modalLink.style.display = 'inline-block';
+            } else {
+                modalLink.style.display = 'none';
+            }
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+            }, 10);
+        };
+
+        const closeModal = () => {
+            modal.classList.add('opacity-0');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+
+        const createCharts = () => {
+            const focusCounts = { investigacion: 0, clinico: 0, productivo: 0, ambiente: 0 };
+            universitiesData.forEach(uni => uni.tags.forEach(tag => { if (focusCounts.hasOwnProperty(tag)) focusCounts[tag]++; }));
+            
+            const regionalFocusCounts = { investigacion: 0, clinico: 0, productivo: 0, ambiente: 0 };
+            universitiesData.filter(uni => uni.region.includes('valparaiso')).forEach(uni => uni.tags.forEach(tag => { if (regionalFocusCounts.hasOwnProperty(tag)) regionalFocusCounts[tag]++; }));
+            
+            const chartOptions = {
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { color: '#d1d5db', stepSize: 1 },
+                        grid: { color: '#374151' }
+                    },
+                    y: {
+                        ticks: { color: '#d1d5db' },
+                        grid: { color: '#374151' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'end',
+                        color: 'white',
+                        font: {
+                            weight: 'bold'
+                        },
+                        offset: 4,
+                        formatter: (value) => value > 0 ? value : ''
+                    }
+                }
             };
+            
+            new Chart(document.getElementById('nationalChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Investigación', 'Clínico y Calidad', 'I+D+i y Productivo', 'Bioética y Ambiente'],
+                    datasets: [{
+                        label: 'Nº de Universidades',
+                        data: Object.values(focusCounts),
+                        backgroundColor: ['#3b82f6', '#14b8a6', '#f59e0b', '#22c55e']
+                    }]
+                },
+                options: chartOptions
+            });
 
-            init();
+            new Chart(document.getElementById('regionalChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Investigación', 'Clínico y Calidad', 'I+D+i y Productivo', 'Bioética y Ambiente'],
+                    datasets: [{
+                        label: 'Nº de Universidades en Valparaíso',
+                        data: Object.values(regionalFocusCounts),
+                        backgroundColor: ['#3b82f6', '#14b8a6', '#f59e0b', '#22c55e']
+                    }]
+                },
+                options: chartOptions
+            });
+        };
+
+        specFilterContainer.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                specFilterContainer.querySelector('.active').classList.remove('active');
+                e.target.classList.add('active');
+                displayUniversities();
+            }
         });
+        regionFilterContainer.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                regionFilterContainer.querySelector('.active').classList.remove('active');
+                e.target.classList.add('active');
+                displayUniversities();
+            }
+        });
+        grid.addEventListener('click', (e) => {
+            const card = e.target.closest('.university-card');
+            if (card) openModal(card.dataset.id);
+        });
+        closeModalBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        
+        displayUniversities();
+        createCharts();
+    }
     </script>
 </body>
 </html>
